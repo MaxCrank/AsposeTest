@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FormatConversion.XmlFormatProcessor.Properties {
+namespace AsposeFormatConverter.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace FormatConversion.XmlFormatProcessor.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FormatConversion.XmlFormatProcessor.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AsposeFormatConverter.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -64,31 +64,20 @@ namespace FormatConversion.XmlFormatProcessor.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;xs:schema id=&quot;XmlFormatSchema&quot; elementFormDefault=&quot;unqualified&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
         ///
-        ///  &lt;xs:complexType name=&quot;Document&quot;&gt;
+        ///  &lt;xs:element name=&quot;Document&quot; type=&quot;DocumentType&quot; /&gt;
+        ///  
+        ///  &lt;xs:complexType name=&quot;DocumentType&quot;&gt;
         ///    &lt;xs:sequence&gt;
         ///      &lt;xs:element name=&quot;Car&quot; minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;&gt;
         ///        &lt;xs:complexType&gt;
         ///          &lt;xs:sequence&gt;
         ///            &lt;xs:element name=&quot;Date&quot; minOccurs=&quot;1&quot; maxOccurs=&quot;1&quot;&gt;
         ///              &lt;xs:simpleType&gt;
-        ///                &lt;xs:restriction base=&quot;xs:string&quot;&gt;
-        ///                  &lt;xs:pattern value=&quot;^ [rest of string was truncated]&quot;;.
+        ///                &lt;xs:restriction base=&quot;x [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string XmlFormatSchema {
             get {
                 return ResourceManager.GetString("XmlFormatSchema", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-        ///&lt;Document&gt;
-        ///&lt;/Document&gt;
-        ///.
-        /// </summary>
-        internal static string XmlFormatTemplate {
-            get {
-                return ResourceManager.GetString("XmlFormatTemplate", resourceCulture);
             }
         }
     }

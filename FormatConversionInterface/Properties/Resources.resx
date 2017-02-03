@@ -119,9 +119,6 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="XmlFormatSchema" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\XmlFormatSchema.xsd;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="XmlFormatTemplate" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\XmlFormatTemplate.xml;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>..\FormatProcessors\XML\XmlFormatSchema.xsd;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>

@@ -1,20 +1,15 @@
-﻿using FormatConversion.Base;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FormatConversion.Converter
+namespace AsposeFormatConverter.Base
 {
     /// <summary>
     /// Interface for a common format converter library. Used for development purposes only.
     /// </summary>
     internal interface ICommonFormatConverter
     {
-        /// <summary>
-        /// Used for loading all format processors that was linked to the library. Should be invoked before usage.
-        /// </summary>
-        void InitFormatProcessors();
         /// <summary>
         /// Checks if specified format is supported by any of format processors and returns a new instance of the corresponding one
         /// </summary>

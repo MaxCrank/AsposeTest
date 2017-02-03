@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema id="XmlFormatSchema" elementFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:complexType name="Document">
+  <xs:element name="Document" type="DocumentType" />
+  
+  <xs:complexType name="DocumentType">
     <xs:sequence>
       <xs:element name="Car" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>

@@ -1,24 +1,35 @@
-﻿using FormatConversion.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
-namespace FormatConversion.Converter
+namespace AsposeFormatConverter.Base
 {
     /// <summary>
     /// Common format converter. Can be referenced with various format processors to generate flexible library.
     /// </summary>
-    public class FormatConverter : IFormatConverter
+    public class CommonFormatConverter : ICommonFormatConverter
     {
-        List<IFormatProcessor> _formatProcessors = new List<IFormatProcessor>();
+        private readonly Regex _fullPathFormatRegex = new Regex(FormatConversionSettings.FormatFullPathRegex);
+
+        static List<IFormatProcessor> _formatProcessors = new List<IFormatProcessor>();
+
+        static bool formatProcessorsInitialized = false;
+
+        public CommonFormatConverter()
+        {
+            InitFormatProcessors();
+        }
 
         /// <summary>
         /// Used for loading all format processors. Should be invoked before usage.
         /// </summary>
-        public void InitFormatProcessors()
+        private void InitFormatProcessors()
         {
+            if (formatProcessorsInitialized) return;
+            formatProcessorsInitialized = true;
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.GetInterface(typeof(IFormatProcessor).FullName) != null))
@@ -27,12 +38,13 @@ namespace FormatConversion.Converter
                 }
             }
         }
+
         /// <summary>
         /// Checks if specified format is supported by any of format processors and returns a new instance of the corresponding one
         /// </summary>
         /// <param name="format"></param>
         /// <returns>New format processor instance if specified format is supported, otherwise null</returns>
-        public IFormatProcessor GetFormatProcessor(string format)
+        public IFormatProcessor CreateFormatProcessor(string format)
         {
             IFormatProcessor processor = null;
             if (string.IsNullOrEmpty(format))
@@ -47,8 +59,9 @@ namespace FormatConversion.Converter
                     Console.WriteLine("Not supported format: " + format);
                 }
             }
-            return processor?.CreateNew();
+            return processor?.GetFormatProcessor();
         }
+
         /// <summary>
         /// Tries to convert data from provided format processor
         /// </summary>
@@ -73,15 +86,16 @@ namespace FormatConversion.Converter
             }
             else
             {
-                var outputProcessor = GetFormatProcessor(outputFormat);
+                var outputProcessor = CreateFormatProcessor(outputFormat);
                 if (outputProcessor != null)
                 {
-                    outputProcessor.SetData(inputFormatProcessor.Data);
-                    result = outputProcessor.WriteFile(outputFilePath);
+                    outputProcessor.SetData(inputFormatProcessor.Data.AsEnumerable(), true);
+                    result = outputProcessor.SaveToFile(outputFilePath);
                 }
             }
             return result;
         }
+
         /// <summary>
         /// Tries to convert an input file with explicit format specification
         /// </summary>
@@ -97,19 +111,20 @@ namespace FormatConversion.Converter
             string finalOutputPath = outputFilePath;
             if (TryGetSupportedFormatFromPath(inputFilePath, out inputFormat))
             {
-                var outputFormatProcessor = GetFormatProcessor(outputFormat);
+                var outputFormatProcessor = CreateFormatProcessor(outputFormat);
                 if (outputFormatProcessor != null)
                 {
-                    var inputProcessor = GetFormatProcessor(inputFormat);
-                    if (inputProcessor.ReadFile(inputFilePath))
+                    var inputProcessor = CreateFormatProcessor(inputFormat);
+                    if (inputProcessor.ReadFromFile(inputFilePath))
                     {
-                        outputFormatProcessor.SetData(inputProcessor.Data);
-                        result = outputFormatProcessor.WriteFile(outputFilePath);
+                        outputFormatProcessor.SetData(inputProcessor.Data, false);
+                        result = outputFormatProcessor.SaveToFile(outputFilePath);
                     }
                 }
             }
             return result;
         }
+
         /// <summary>
         /// Tries to convert an input file without explicit format specification
         /// </summary>
@@ -130,21 +145,22 @@ namespace FormatConversion.Converter
             }
             else
             {
-                var inputFormatProcessor = GetFormatProcessor(inputFormat);
-                if (inputFormatProcessor != null && inputFormatProcessor.ReadFile(inputFilePath))
+                var inputFormatProcessor = CreateFormatProcessor(inputFormat);
+                if (inputFormatProcessor != null && inputFormatProcessor.ReadFromFile(inputFilePath))
                 {
-                    var outputFormatProcessor = GetFormatProcessor(outputFormat);
+                    var outputFormatProcessor = CreateFormatProcessor(outputFormat);
                     if (outputFormatProcessor != null)
                     {
-                        outputFormatProcessor.SetData(inputFormatProcessor.Data);
-                        result = outputFormatProcessor.WriteFile(outputFilePath);
+                        outputFormatProcessor.SetData(inputFormatProcessor.Data, true);
+                        result = outputFormatProcessor.SaveToFile(outputFilePath);
                     }
                 }
             }
             return result;
         }
+
         /// <summary>
-        /// Tries to get supported file format from provided file path and its' extension
+        /// Tries to get supported file format from provided file path by file's extension
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="format"></param>
@@ -161,9 +177,9 @@ namespace FormatConversion.Converter
             {
                 Console.WriteLine("File " + filePath + " does not exist");
             }
-            else if (filePath.Contains(".") && filePath[0] != '.')
+            else if (_fullPathFormatRegex.IsMatch(filePath))
             {
-                string extension = filePath.Split('.').Last();
+                string extension = _fullPathFormatRegex.Match(filePath).Value;
                 var supportedFormatProcessor = _formatProcessors.Find(p => p.SupportsFormat(extension));
                 if (supportedFormatProcessor != null)
                 {
