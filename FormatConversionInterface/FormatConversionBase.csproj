@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E128B044-4DC9-4F9F-BEBC-604868385FAB}</ProjectGuid>
+    <ProjectGuid>{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FormatConversion.Converter</RootNamespace>
-    <AssemblyName>FormatConversion.Converter</AssemblyName>
+    <RootNamespace>FormatConversion.Base</RootNamespace>
+    <AssemblyName>FormatConversion.Base</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -43,15 +43,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonFormatConverter.cs" />
-    <Compile Include="ICommonFormatConverter.cs" />
+    <Compile Include="FormatConversionSettings.cs" />
+    <Compile Include="FormatDataItem.cs" />
+    <Compile Include="Abstracts\FormatProcessorBase.cs" />
+    <Compile Include="Abstracts\NotifyPropertyChangedBase.cs" />
+    <Compile Include="Interfaces\IFormatDataItem.cs" />
+    <Compile Include="Interfaces\IFormatProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FormatConversionInterface\FormatConversionBase.csproj">
-      <Project>{f1eb81d2-1b10-4a6c-8ee9-53983ed60d8f}</Project>
-      <Name>FormatConversionBase</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,7 +5,9 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatConversionMain", "FileFormatLib\FormatConversionMain.csproj", "{E128B044-4DC9-4F9F-BEBC-604868385FAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatConversionInterfaces", "FormatConversionInterface\FormatConversionInterfaces.csproj", "{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatConversionBase", "FormatConversionInterface\FormatConversionBase.csproj", "{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlFormatProcessor", "XmlFormatProcessor\XmlFormatProcessor.csproj", "{571FC6A9-2721-4494-BDF1-A83B78148414}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{571FC6A9-2721-4494-BDF1-A83B78148414}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{571FC6A9-2721-4494-BDF1-A83B78148414}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{571FC6A9-2721-4494-BDF1-A83B78148414}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{571FC6A9-2721-4494-BDF1-A83B78148414}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
