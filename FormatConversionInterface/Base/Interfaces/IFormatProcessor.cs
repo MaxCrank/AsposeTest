@@ -15,16 +15,16 @@ namespace AsposeFormatConverter.Base
         /// <summary>
         /// Returns format string representation
         /// </summary>
-        string Format { get; }
+        ConvertedFormat Format { get; }
 
         /// <summary>
         /// Readonly collection of parsed data items. Modification is allowed with corresponding methods only.
         /// </summary>
         ReadOnlyObservableCollection<IFormatDataItem> Data { get; }
 
-        bool AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);
+        void AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);
 
-        bool RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);
+        void RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);
 
         /// <summary>
         /// Checks if this processor supports specified format
@@ -42,7 +42,7 @@ namespace AsposeFormatConverter.Base
 
         void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems);
 
-        bool AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem);
+        void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem);
 
         bool RemoveDataItem(IFormatDataItem dataItem);
 
@@ -66,8 +66,7 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="replace">If existing file is to be replaced</param>
-        /// <param name="saveBackup">If existing file is to be saved with backup extension before replacement</param>
-        /// <returnsIf file was successfully filled with formatted data></returns>
+        /// <returns>If file was successfully filled with formatted data></returns>
         bool SaveToFile(string filePath, bool replace);
 
         /// <summary>

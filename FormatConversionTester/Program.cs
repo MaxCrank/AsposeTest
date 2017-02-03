@@ -11,33 +11,26 @@ namespace FormatConversionTester
     {
         static void Main(string[] args)
         {
-            CommonFormatConverter converter = null;
-            try
-            {
-                converter = new CommonFormatConverter();
-            }
-            catch(Exception ex)
-            {
-                if (!(ex is FileNotFoundException))
-                {
-                    throw ex;
-                }
-            }
+			/*
+            CommonFormatConverter converter = new CommonFormatConverter();
             string filePath = "CarTest.xml";
-            string format;
+            ConvertedFormat format;
             if (converter.TryGetSupportedFormatFromPath(filePath, out format))
             {
-                var formatProcessor = converter.CreateFormatProcessor(format);
-                if (formatProcessor.ReadFromFile(filePath))
+                using (var formatProcessor = converter.CreateFormatProcessor(format))
                 {
-                    foreach(var dataItem in formatProcessor.Data)
+                    if (formatProcessor.ReadFromFile(filePath))
                     {
-                        Console.WriteLine(dataItem.ToString());
+                        foreach (var dataItem in formatProcessor.Data)
+                        {
+                            Console.WriteLine(dataItem.ToString());
+                        }
                     }
+                    formatProcessor.SaveToFile("CarTestNew.xml");
                 }
-                formatProcessor.SaveToFile("CarTestNew.xml");
+                Console.ReadLine();
             }
-
+			*/
         }
     }
 }

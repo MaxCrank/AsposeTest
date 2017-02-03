@@ -2,6 +2,7 @@
 using AsposeFormatConverter.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,17 +21,11 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         private readonly XmlSerializer _xmlFormatSerializer = new XmlSerializer(typeof(XmlFormatSerializedData));
         private readonly XmlDocument _xmlFormatDocLoader = new XmlDocument();
 
-        public override string Format
-        {
-            get
-            {
-                return "XML";
-            }
-        }
+        public override ConvertedFormat Format => ConvertedFormat.XML;
 
-        static bool ReadXmlSchema()
+        static void ReadXmlSchema()
         {
-            if (_xmlSchema == null) try
+            if (_xmlSchema == null)
             {
                 using (StringReader schemaStringReader = new StringReader(Resources.XmlFormatSchema))
                 using (XmlReader schemaXmlReader = XmlReader.Create(schemaStringReader))
@@ -44,20 +39,14 @@ namespace AsposeFormatConverter.FormatProcessors.XML
                         }
                     });
                 }
-
+                Debug.Assert(_xmlSchema != null, "XML schema was not read");
             }
-            catch (Exception exception)
-            {
-                _xmlSchema = null;
-                throw exception;
-            }
-            return _xmlSchema != null;
         }
 
-        public XmlFormatProcessor() : base()
+        public XmlFormatProcessor()
         {
-            if (ReadXmlSchema())
-                _xmlFormatDocLoader.Schemas.Add(_xmlSchema);
+            ReadXmlSchema();
+            _xmlFormatDocLoader.Schemas.Add(_xmlSchema);
             _emptyXmlNamespaces.Add("", "");
         }
 
@@ -68,7 +57,6 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         /// </returns>
         public override object GetData()
         {
-            string outputString = string.Empty;
             XmlFormatSerializedData serializedFormatData = new XmlFormatSerializedData();
             serializedFormatData.Cars = new XmlFormatSerializedData.Car[Data.Count];
             for (int x = 0; x < Data.Count; x++)
@@ -78,22 +66,16 @@ namespace AsposeFormatConverter.FormatProcessors.XML
             return serializedFormatData;
         }
 
-        protected override bool WriteFormattedDataToStream(object data, Stream stream, string filePath)
+        protected override void WriteFormattedDataToStream(object data, Stream stream)
         {
-            bool result = false;
-            var serializedData = data as XmlFormatSerializedData;
-            if (serializedData != null) using (var xmlTextWriter = new XmlTextWriter(stream, _defaultEncoding))
-                {
-                    xmlTextWriter.Formatting = Formatting.Indented;
-                    _xmlFormatSerializer.Serialize(xmlTextWriter, serializedData, _emptyXmlNamespaces);
-                    stream.Close();
-                    result = true;
-                }
-            else
+            Debug.Assert(data is XmlFormatSerializedData, "Can't write null or invalid data type to stream");
+            Debug.Assert(stream != null, "Can't write data to null stream");
+            using (var xmlTextWriter = new XmlTextWriter(stream, _defaultEncoding))
             {
-                Console.WriteLine("Can't write null-valued data to stream");
+                xmlTextWriter.Formatting = Formatting.Indented;
+                _xmlFormatSerializer.Serialize(xmlTextWriter, (XmlFormatSerializedData) data, _emptyXmlNamespaces);
+                stream.Close();
             }
-            return result;
         }
 
         /// <summary>
@@ -106,31 +88,38 @@ namespace AsposeFormatConverter.FormatProcessors.XML
             bool result = false;
             if (allBytes != null && allBytes.Length > 0)
             {
-                string xml = _defaultEncoding.GetString(allBytes);
-                int startIndex = xml.IndexOf('<');
-                if (startIndex > 0)
+                try
                 {
-                    xml = xml.Substring(startIndex, xml.Length - startIndex);
-                }
-                _xmlFormatDocLoader.LoadXml(xml);
-                _xmlFormatDocLoader.Validate(null);
-                _xmlFormatDocLoader.RemoveAll();
-                XmlFormatSerializedData document = null;
-                using (var reader = new StringReader(xml))
-                {
-                    document = _xmlFormatSerializer.Deserialize(reader) as XmlFormatSerializedData;
-                }
-                if (document == null)
-                {
-                    Console.WriteLine("XML deserialization failed");
-                }
-                else
-                {
-                    foreach (var car in document.Cars)
+                    string xml = _defaultEncoding.GetString(allBytes);
+                    int startIndex = xml.IndexOf('<');
+                    if (startIndex > 0)
                     {
-                        AddDataItem(new XmlFormatDataItem(car), false);
+                        xml = xml.Substring(startIndex, xml.Length - startIndex);
                     }
-                    result = true;
+                    _xmlFormatDocLoader.LoadXml(xml);
+                    _xmlFormatDocLoader.Validate(null);
+                    _xmlFormatDocLoader.RemoveAll();
+                    XmlFormatSerializedData document = null;
+                    using (var reader = new StringReader(xml))
+                    {
+                        document = _xmlFormatSerializer.Deserialize(reader) as XmlFormatSerializedData;
+                    }
+                    if (document == null)
+                    {
+                        Console.WriteLine("XML deserialization failed");
+                    }
+                    else
+                    {
+                        foreach (var car in document.Cars)
+                        {
+                            AddDataItem(new XmlFormatDataItem(car), false);
+                        }
+                        result = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
                 }
             }
             else
@@ -142,7 +131,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 
         internal sealed class SpecificStringWriter : StringWriter
         {
-            public override Encoding Encoding { get { return _defaultEncoding; } }
+            public override Encoding Encoding => _defaultEncoding;
         }
     }
 }

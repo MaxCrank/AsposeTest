@@ -1,6 +1,7 @@
 ﻿using AsposeFormatConverter.Base;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -39,12 +40,10 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 
             public Car(IFormatDataItem formatDataItem)
             {
-                if (formatDataItem != null)
-                {
-                    Date = formatDataItem.Date;
-                    BrandName = formatDataItem.BrandName;
-                    Price = formatDataItem.Price;
-                }
+                Debug.Assert(formatDataItem != null, "Can't init Car ctor with null");
+                Date = formatDataItem.Date;
+                BrandName = formatDataItem.BrandName;
+                Price = formatDataItem.Price;
             }
         }
     }

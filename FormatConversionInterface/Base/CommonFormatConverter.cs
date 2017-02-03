@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,11 +15,11 @@ namespace AsposeFormatConverter.Base
     {
         private readonly Regex _fullPathFormatRegex = new Regex(FormatConversionSettings.FormatFullPathRegex);
 
-        static List<IFormatProcessor> _formatProcessors = new List<IFormatProcessor>();
+        private static List<IFormatProcessor> _formatProcessors = new List<IFormatProcessor>();
 
-        static bool formatProcessorsInitialized = false;
+        private static bool _formatProcessorsInitialized = false;
 
-        public CommonFormatConverter()
+        static CommonFormatConverter()
         {
             InitFormatProcessors();
         }
@@ -26,17 +27,20 @@ namespace AsposeFormatConverter.Base
         /// <summary>
         /// Used for loading all format processors. Should be invoked before usage.
         /// </summary>
-        private void InitFormatProcessors()
+        private static void InitFormatProcessors()
         {
-            if (formatProcessorsInitialized) return;
-            formatProcessorsInitialized = true;
+            Debug.Assert(!_formatProcessorsInitialized, "Format processors are already initialized");
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.GetInterface(typeof(IFormatProcessor).FullName) != null))
                 {
-                    _formatProcessors.Add(Activator.CreateInstance(type) as IFormatProcessor);
+                    var processor = Activator.CreateInstance(type) as IFormatProcessor;
+                    Debug.Assert(processor != null, "One or more format processor activations failed on init - type check is probably not complete");
+                    Debug.Assert(processor.Format != ConvertedFormat.UNKNOWN, "Fatal error: initialized processor formats should not be unknown");
+                    _formatProcessors.Add(processor);
                 }
             }
+            _formatProcessorsInitialized = true;
         }
 
         /// <summary>
@@ -44,20 +48,12 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="format"></param>
         /// <returns>New format processor instance if specified format is supported, otherwise null</returns>
-        public IFormatProcessor CreateFormatProcessor(string format)
+        public IFormatProcessor CreateFormatProcessor(ConvertedFormat format)
         {
-            IFormatProcessor processor = null;
-            if (string.IsNullOrEmpty(format))
+            var processor = _formatProcessors.Find(p => p.Format == format);
+            if (processor == null)
             {
-                Console.WriteLine("Specified format is null or empty");
-            }
-            else
-            {
-                processor = _formatProcessors.Find(p => p.SupportsFormat(format));
-                if (processor == null)
-                {
-                    Console.WriteLine("Not supported format: " + format);
-                }
+                Console.WriteLine($"Not supported format: {format}");
             }
             return processor?.GetFormatProcessor();
         }
@@ -69,29 +65,17 @@ namespace AsposeFormatConverter.Base
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        public bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, string outputFormat)
+        public bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat)
         {
+            Debug.Assert(inputFormatProcessor != null, "Can't convert data from null-valued input format processor");
+            Debug.Assert(!string.IsNullOrEmpty(outputFilePath), "Can't save data at null or empty file path");
             bool result = false;
-            if (inputFormatProcessor == null)
+            var outputProcessor = CreateFormatProcessor(outputFormat);
+            if (outputProcessor != null)
             {
-                Console.WriteLine("Input format processor is null");
-            }
-            else if (string.IsNullOrEmpty(outputFilePath))
-            {
-                Console.WriteLine("Specified output file path is null or empty");
-            }
-            else if (string.IsNullOrEmpty(outputFormat))
-            {
-                Console.WriteLine("Specified output format is null or empty");
-            }
-            else
-            {
-                var outputProcessor = CreateFormatProcessor(outputFormat);
-                if (outputProcessor != null)
-                {
-                    outputProcessor.SetData(inputFormatProcessor.Data.AsEnumerable(), true);
-                    result = outputProcessor.SaveToFile(outputFilePath);
-                }
+                outputProcessor.SetData(inputFormatProcessor.Data.AsEnumerable(), true);
+                result = outputProcessor.SaveToFile(outputFilePath);
+                outputProcessor.Dispose();
             }
             return result;
         }
@@ -100,15 +84,17 @@ namespace AsposeFormatConverter.Base
         /// Tries to convert an input file with explicit format specification
         /// </summary>
         /// <param name="inputFilePath"></param>
-        /// <param name="inputFormat"></param>
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        public bool Convert(string inputFilePath, string outputFilePath, string outputFormat)
+        public bool Convert(string inputFilePath, string outputFilePath, ConvertedFormat outputFormat)
         {
+            Debug.Assert(!string.IsNullOrEmpty(inputFilePath), "Can't read file from null or empty path");
+            Debug.Assert(!string.IsNullOrEmpty(outputFilePath), "Can't write file to null or empty path");
+            Debug.Assert(File.Exists(inputFilePath), "Can't read from path leading to non-existing file");
+            Debug.Assert(outputFormat != ConvertedFormat.UNKNOWN, "Converted format should not be unknown");
             bool result = false;
-            string inputFormat;
-            string finalOutputPath = outputFilePath;
+            ConvertedFormat inputFormat;
             if (TryGetSupportedFormatFromPath(inputFilePath, out inputFormat))
             {
                 var outputFormatProcessor = CreateFormatProcessor(outputFormat);
@@ -119,6 +105,8 @@ namespace AsposeFormatConverter.Base
                     {
                         outputFormatProcessor.SetData(inputProcessor.Data, false);
                         result = outputFormatProcessor.SaveToFile(outputFilePath);
+                        outputFormatProcessor.Dispose();
+                        inputProcessor.Dispose();
                     }
                 }
             }
@@ -129,31 +117,29 @@ namespace AsposeFormatConverter.Base
         /// Tries to convert an input file without explicit format specification
         /// </summary>
         /// <param name="inputFilePath"></param>
+        /// <param name="inputFormat"></param>
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        public bool Convert(string inputFilePath, string inputFormat, string outputFilePath, string outputFormat)
+        public bool Convert(string inputFilePath, ConvertedFormat inputFormat, string outputFilePath,
+            ConvertedFormat outputFormat)
         {
+            Debug.Assert(!string.IsNullOrEmpty(inputFilePath), "Can't read file from null or empty path");
+            Debug.Assert(!string.IsNullOrEmpty(outputFilePath), "Can't write file to null or empty path");
+            Debug.Assert(File.Exists(inputFilePath), "Can't read from path leading to non-existing file");
+            Debug.Assert(inputFormat != ConvertedFormat.UNKNOWN && outputFormat != ConvertedFormat.UNKNOWN,
+                "Converted format should not be unknown");
             bool result = false;
-            if (string.IsNullOrEmpty(inputFilePath))
+            var inputFormatProcessor = CreateFormatProcessor(inputFormat);
+            if (inputFormatProcessor != null && inputFormatProcessor.ReadFromFile(inputFilePath))
             {
-                Console.WriteLine("Specified input file path is null or empty");
-            }
-            else if (!File.Exists(inputFilePath))
-            {
-                Console.WriteLine("File " + inputFilePath + " does not exist");
-            }
-            else
-            {
-                var inputFormatProcessor = CreateFormatProcessor(inputFormat);
-                if (inputFormatProcessor != null && inputFormatProcessor.ReadFromFile(inputFilePath))
+                var outputFormatProcessor = CreateFormatProcessor(outputFormat);
+                if (outputFormatProcessor != null)
                 {
-                    var outputFormatProcessor = CreateFormatProcessor(outputFormat);
-                    if (outputFormatProcessor != null)
-                    {
-                        outputFormatProcessor.SetData(inputFormatProcessor.Data, true);
-                        result = outputFormatProcessor.SaveToFile(outputFilePath);
-                    }
+                    outputFormatProcessor.SetData(inputFormatProcessor.Data, true);
+                    result = outputFormatProcessor.SaveToFile(outputFilePath);
+                    outputFormatProcessor.Dispose();
+                    inputFormatProcessor.Dispose();
                 }
             }
             return result;
@@ -165,26 +151,20 @@ namespace AsposeFormatConverter.Base
         /// <param name="filePath"></param>
         /// <param name="format"></param>
         /// <returns>If supported format was revealed</returns>
-        public bool TryGetSupportedFormatFromPath(string filePath, out string format)
+        public bool TryGetSupportedFormatFromPath(string filePath, out ConvertedFormat format)
         {
-            format = string.Empty;
+            Debug.Assert(!string.IsNullOrEmpty(filePath), "Extension can't be retrieved from null or empty file path");
+            Debug.Assert(File.Exists(filePath), "Extension can't be retrieved from path leading to non-existing file");
             bool result = false;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                Console.WriteLine("Specified file path is null or empty");
-            }
-            else if (!File.Exists(filePath))
-            {
-                Console.WriteLine("File " + filePath + " does not exist");
-            }
-            else if (_fullPathFormatRegex.IsMatch(filePath))
+            format = ConvertedFormat.UNKNOWN;
+            if (_fullPathFormatRegex.IsMatch(filePath))
             {
                 string extension = _fullPathFormatRegex.Match(filePath).Value;
                 var supportedFormatProcessor = _formatProcessors.Find(p => p.SupportsFormat(extension));
                 if (supportedFormatProcessor != null)
                 {
-                    result = true;
                     format = supportedFormatProcessor.Format;
+                    result = format != ConvertedFormat.UNKNOWN;
                 }
             }
             return result;

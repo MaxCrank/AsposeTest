@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -11,32 +12,25 @@ namespace AsposeFormatConverter.Base
         private PropertyChangedEventHandler _propertyChanged;
         private List<PropertyChangedEventHandler> _propertyChangedDelegates = new List<PropertyChangedEventHandler>();
 
-        public bool AddPropertyChangedHandler(PropertyChangedEventHandler eventHandler)
+        public void AddPropertyChangedHandler(PropertyChangedEventHandler eventHandler)
         {
-            bool result = false;
-            if (!_propertyChangedDelegates.Contains(eventHandler))
-            {
-                _propertyChanged += eventHandler;
-                _propertyChangedDelegates.Add(eventHandler);
-                result = true;
-            }
-            return result;
+            Debug.Assert(eventHandler != null, "EventHandler is null");
+            Debug.Assert(!_propertyChangedDelegates.Contains(eventHandler), "EventHandler is already added");
+            _propertyChanged += eventHandler;
+            _propertyChangedDelegates.Add(eventHandler);
         }
 
-        public bool RemovePropertyChangedHandler(PropertyChangedEventHandler eventHandler)
+        public void RemovePropertyChangedHandler(PropertyChangedEventHandler eventHandler)
         {
-            bool result = false;
-            if (_propertyChangedDelegates.Contains(eventHandler))
-            {
-                _propertyChanged -= eventHandler;
-                _propertyChangedDelegates.Remove(eventHandler);
-                result = true;
-            }
-            return result;
+            Debug.Assert(eventHandler != null, "EventHandler is null");
+            Debug.Assert(_propertyChangedDelegates.Contains(eventHandler), "EventHandler was not added, therefore can't be removed");
+            _propertyChanged -= eventHandler;
+            _propertyChangedDelegates.Remove(eventHandler);
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
+            Debug.Assert(!string.IsNullOrEmpty(propertyName), "Propery name is null or empty, can't raise an event");
             _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

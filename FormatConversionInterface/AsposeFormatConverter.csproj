@@ -45,10 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\CommonFormatConverter.cs" />
+    <Compile Include="Base\ConvertedFormat.cs" />
     <Compile Include="Base\FormatConversionSettings.cs" />
     <Compile Include="Base\FormatDataItem.cs" />
     <Compile Include="Base\Abstracts\FormatProcessorBase.cs" />
     <Compile Include="Base\Abstracts\NotifyPropertyChangedBase.cs" />
+    <Compile Include="FormatProcessors\Binary\BinaryFormatProcessor.cs" />
     <Compile Include="FormatProcessors\XML\XmlFormatDataItem.cs" />
     <Compile Include="FormatProcessors\XML\XmlFormatProcessor.cs" />
     <Compile Include="FormatProcessors\XML\XmlFormatSerializedData.cs" />
@@ -72,6 +74,7 @@
     </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

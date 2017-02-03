@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,78 +15,52 @@ namespace AsposeFormatConverter.Base
     /// </summary>
     internal abstract class FormatProcessorBase : IFormatProcessor
     {
-        private static readonly Regex formatRegex = new Regex(FormatConversionSettings.FormatOnlyRegex);
+        private static readonly Regex FormatRegex = new Regex(FormatConversionSettings.FormatOnlyRegex);
 
-        protected static Dictionary<string, Queue<IFormatProcessor>> formatProcessorsCache = new Dictionary<string, Queue<IFormatProcessor>>();
+        protected static Dictionary<ConvertedFormat, Queue<IFormatProcessor>> FormatProcessorsCache = new Dictionary<ConvertedFormat, Queue<IFormatProcessor>>();
 
         private ObservableCollection<IFormatDataItem> _dataCollection = new ObservableCollection<IFormatDataItem>();
         private ReadOnlyObservableCollection<IFormatDataItem> _readonlyDataCollection;
 
         private List<NotifyCollectionChangedEventHandler> _collectionChangedDelegates = new List<NotifyCollectionChangedEventHandler>();
 
-        private readonly string _preparedFormat;
+        private readonly string _stringFormat;
 
         /// <remarks>
         /// Implements ReadOnlyObservableCollection anti-pattern
         /// </remarks>
-        public ReadOnlyObservableCollection<IFormatDataItem> Data
+        public ReadOnlyObservableCollection<IFormatDataItem> Data => _readonlyDataCollection ??
+                                                                     (_readonlyDataCollection = new ReadOnlyObservableCollection<IFormatDataItem>(_dataCollection));
+
+        public abstract ConvertedFormat Format { get; }
+
+        protected FormatProcessorBase()
         {
-            get
-            {
-                if (_readonlyDataCollection == null)
-                    _readonlyDataCollection = new ReadOnlyObservableCollection<IFormatDataItem>(_dataCollection);
-                return _readonlyDataCollection;
-            }
+            Debug.Assert(Format != ConvertedFormat.UNKNOWN, "Processor's format should not be unknown");
+            _stringFormat = Enum.GetName(typeof(ConvertedFormat), Format).ToLowerInvariant();
         }
 
-        public abstract string Format { get; }
-
-        public FormatProcessorBase()
+        public void AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
         {
-            _preparedFormat = PrepareFormatString(Format);
+            Debug.Assert(eventHandler != null, "Event handler is null");
+            Debug.Assert(!_collectionChangedDelegates.Contains(eventHandler), "Event handler is already added");
+            _dataCollection.CollectionChanged += eventHandler;
+            _collectionChangedDelegates.Add(eventHandler);
         }
 
-        public bool AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
+        public void RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
         {
-            bool result = false;
-            if (!_collectionChangedDelegates.Contains(eventHandler))
-            {
-                _dataCollection.CollectionChanged += eventHandler;
-                _collectionChangedDelegates.Add(eventHandler);
-                result = true;
-            }
-            return result;
+            Debug.Assert(eventHandler != null, "Event handler is null");
+            Debug.Assert(_collectionChangedDelegates.Contains(eventHandler), "Event handler was not added, therefore can't be removed");
+            _dataCollection.CollectionChanged -= eventHandler;
+            _collectionChangedDelegates.Remove(eventHandler);
         }
 
-        public bool RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
+        public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = false)
         {
-            bool result = false;
-            if (_collectionChangedDelegates.Contains(eventHandler))
-            {
-                _dataCollection.CollectionChanged -= eventHandler;
-                _collectionChangedDelegates.Remove(eventHandler);
-                result = true;
-            }
-            return result;
-        }
-
-        public bool AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = false)
-        {
-            bool result = false;
-            if (dataItem == null)
-            {
-                Console.WriteLine("Can't add null-valued data item");
-            }
-            else if (Data.Contains(dataItem))
-            {
-                Console.WriteLine("You try to add an item that's already in the Data collection. Please, use Clone method to make a copy if that was your intention.");
-            }
-            else
-            {
-                _dataCollection.Add(cloneInputDataItem ? (dataItem.Clone() as IFormatDataItem) : dataItem);
-                result = true;
-            }
-            return result;
+            Debug.Assert(dataItem != null, "Can't add null-valued data item");
+            Debug.Assert(!Data.Contains(dataItem), "Item is already in the Data collection. Please, use clone option to make a copy if that was your intention.");
+            _dataCollection.Add(cloneInputDataItem ? (dataItem.Clone() as IFormatDataItem) : dataItem);
         }
 
         /// <summary>
@@ -93,6 +68,7 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         public void ClearData()
         {
+            Debug.Assert(_dataCollection != null);
             foreach (var dataItem in _dataCollection)
             {
                 dataItem.Dispose();
@@ -106,9 +82,10 @@ namespace AsposeFormatConverter.Base
         /// <returns>New instance if there are no free processors, otherwise reuses the one that was disposed and now is free</returns>
         public IFormatProcessor GetFormatProcessor()
         {
-            if (formatProcessorsCache.ContainsKey(_preparedFormat) && formatProcessorsCache[_preparedFormat].Count > 0)
+            Debug.Assert(FormatProcessorsCache != null);
+            if (FormatProcessorsCache.ContainsKey(Format) && FormatProcessorsCache[Format].Count > 0)
             {
-                return formatProcessorsCache[_preparedFormat].Dequeue();
+                return FormatProcessorsCache[Format].Dequeue();
             }
             else
             {
@@ -123,21 +100,16 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfuly parsed</returns>
         public bool ReadFromFile(string filePath)
         {
+            Debug.Assert(!string.IsNullOrEmpty(filePath), "Can't read file at null or empty path");
+            Debug.Assert(File.Exists(filePath), $"File {filePath} does not exist");
             bool result = false;
-            if (!File.Exists(filePath))
+            try
             {
-                Console.WriteLine($"File {filePath} does not exist");
+                result = ParseBytes(File.ReadAllBytes(filePath));
             }
-            else
+            catch (Exception ex)
             {
-                try
-                {
-                    result = ParseBytes(File.ReadAllBytes(filePath));
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                Console.WriteLine(ex.Message);
             }
             return result;
         }
@@ -171,7 +143,7 @@ namespace AsposeFormatConverter.Base
         public void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems = true)
         {
             ClearData();
-            foreach(var dataItem in initialData)
+            if (initialData != null) foreach(var dataItem in initialData)
             {
                 AddDataItem(dataItem, cloneInitialDataItems);
             }
@@ -179,6 +151,7 @@ namespace AsposeFormatConverter.Base
 
         private string PrepareFormatString(string format)
         {
+            Debug.Assert(!string.IsNullOrEmpty(format), "Can't prepare empty or null format string");
             return format?.Replace(".", "").ToLowerInvariant();
         }
 
@@ -189,7 +162,7 @@ namespace AsposeFormatConverter.Base
         /// <returns>If this processor supports specified format</returns>
         public bool SupportsFormat(string format)
         {
-            return !string.IsNullOrEmpty(format) && formatRegex.IsMatch(format) && PrepareFormatString(format) == _preparedFormat;
+            return !string.IsNullOrEmpty(format) && FormatRegex.IsMatch(format) && PrepareFormatString(format) == _stringFormat;
         }
 
         /// <returns>Complete formatted structure bytes representation</returns>
@@ -210,10 +183,10 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="replace">If existing file is to be replaced</param>
-        /// <param name="saveBackup">If existing file is to be saved with backup extension before replacement</param>
-        /// <returnsIf file was successfully filled with formatted data></returns>
+        /// <returns>If file was successfully filled with formatted data></returns>
         public bool SaveToFile(string filePath, bool replace)
         {
+            Debug.Assert(!string.IsNullOrEmpty(filePath), "Can't save file at null or empty path");
             bool result = false;
             string tempFilePath = filePath + FormatConversionSettings.TempFileExtension;
             string backupFilePath = filePath + FormatConversionSettings.BackupFileExtension;
@@ -233,20 +206,17 @@ namespace AsposeFormatConverter.Base
                     }
                     else if (!File.Exists(filePath) || replace)
                     {
-                        var data = GetData();
-                        if (data != null && WriteFormattedDataToStream(data, fileStream, filePath))
+                        WriteFormattedDataToStream(GetData(), fileStream);
+                        fileStream.Close();
+                        result = true;
+                        if (File.Exists(filePath))
                         {
-                            fileStream.Close();
-                            result = true;
-                            if (File.Exists(filePath))
-                            {
-                                File.Replace(tempFilePath, filePath, backupFilePath);
-                            }
-                            else
-                            {
-                                File.Copy(tempFilePath, filePath);
-                                File.Delete(tempFilePath);
-                            }
+                            File.Replace(tempFilePath, filePath, backupFilePath);
+                        }
+                        else
+                        {
+                            File.Copy(tempFilePath, filePath);
+                            File.Delete(tempFilePath);
                         }
                     }
                     else
@@ -267,25 +237,18 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="data"></param>
         /// <param name="stream"></param>
-        /// <param name="filePath"></param>
         /// <returns>If data was successfully written to the stream</returns>
-        protected virtual bool WriteFormattedDataToStream(object data, Stream stream, string filePath)
+        protected virtual void WriteFormattedDataToStream(object data, Stream stream)
         {
-            bool result = false;
-            var byteData = data as byte[];
-            if (byteData != null) using (var binaryWriter = new BinaryWriter(stream))
-                {
-                    binaryWriter.Write(byteData);
-                    binaryWriter.Flush();
-                    binaryWriter.Close();
-                    stream.Close();
-                    result = true;
-                }
-            else
+            Debug.Assert(data is byte[], "Can't write null or invalid data type to stream");
+            Debug.Assert(stream != null, "Can't write data to null stream");
+            using (var binaryWriter = new BinaryWriter(stream))
             {
-                Console.WriteLine("Can't write null-valued data to stream");
+                binaryWriter.Write((byte[]) data);
+                binaryWriter.Flush();
+                binaryWriter.Close();
+                stream.Close();
             }
-            return result;
         }
 
         /// <summary>
@@ -297,14 +260,8 @@ namespace AsposeFormatConverter.Base
         {
             get
             {
-                if (index < 0 || index >= _readonlyDataCollection.Count)
-                {
-                    throw new IndexOutOfRangeException("Data index " + index + " is out of range. Items count: " + _readonlyDataCollection.Count);
-                }
-                else
-                {
-                    return _readonlyDataCollection[index];
-                }
+                Debug.Assert(_readonlyDataCollection.Count > 0 && index >= 0 && index < _readonlyDataCollection.Count, "Data item index is out of range");
+                return _readonlyDataCollection[index];
             }
         }
 
@@ -313,11 +270,11 @@ namespace AsposeFormatConverter.Base
             _collectionChangedDelegates.ForEach(d => _dataCollection.CollectionChanged -= d);
             _collectionChangedDelegates.Clear();
             ClearData();
-            if (!formatProcessorsCache.ContainsKey(Format))
+            if (!FormatProcessorsCache.ContainsKey(Format))
             {
-                formatProcessorsCache.Add(_preparedFormat, new Queue<IFormatProcessor>());
+                FormatProcessorsCache.Add(Format, new Queue<IFormatProcessor>());
             }
-            formatProcessorsCache[_preparedFormat].Enqueue(this);
+            FormatProcessorsCache[Format].Enqueue(this);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AsposeFormatConverter.Base;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -10,12 +11,10 @@ namespace AsposeFormatConverter.FormatProcessors.XML
     {
         public XmlFormatDataItem(XmlFormatSerializedData.Car xmlSerializedDataItem)
         {
-            if (xmlSerializedDataItem != null)
-            {
-                SetDate(xmlSerializedDataItem.Date);
-                SetBrandName(xmlSerializedDataItem.BrandName);
-                SetPrice(xmlSerializedDataItem.Price);
-            }
+            Debug.Assert(xmlSerializedDataItem != null, "Can't init XmlFormatDataItem ctor with null");
+            SetDate(xmlSerializedDataItem.Date);
+            SetBrandName(xmlSerializedDataItem.BrandName);
+            SetPrice(xmlSerializedDataItem.Price);
         }
     }
 }

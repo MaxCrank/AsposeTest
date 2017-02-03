@@ -15,7 +15,8 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="format"></param>
         /// <returns>New format processor instance if specified format is supported, otherwise null</returns>
-        IFormatProcessor CreateFormatProcessor(string format);
+        IFormatProcessor CreateFormatProcessor(ConvertedFormat format);
+
         /// <summary>
         /// Tries to convert an input file without explicit format specification
         /// </summary>
@@ -23,7 +24,8 @@ namespace AsposeFormatConverter.Base
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        bool Convert(string inputFilePath, string outputFilePath, string outputFormat);
+        bool Convert(string inputFilePath, string outputFilePath, ConvertedFormat outputFormat);
+
         /// <summary>
         /// Tries to convert an input file with explicit format specification
         /// </summary>
@@ -32,7 +34,8 @@ namespace AsposeFormatConverter.Base
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        bool Convert(string inputFilePath, string inputFormat, string outputFilePath, string outputFormat);
+        bool Convert(string inputFilePath, ConvertedFormat inputFormat, string outputFilePath, ConvertedFormat outputFormat);
+
         /// <summary>
         /// Tries to convert data from provided format processor
         /// </summary>
@@ -40,14 +43,14 @@ namespace AsposeFormatConverter.Base
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, string outputFormat);
+        bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat);
+
         /// <summary>
         /// Tries to get supported file format from provided file path and its' extension
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="format"></param>
         /// <returns>If supported format was revealed</returns>
-        bool TryGetSupportedFormatFromPath(string filePath, out string format);
-
+        bool TryGetSupportedFormatFromPath(string filePath, out ConvertedFormat format);
     }
 }

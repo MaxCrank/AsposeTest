@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -19,70 +20,28 @@ namespace AsposeFormatConverter.Base
         /// <summary>
         /// Logical name which defines the purpose of the data
         /// </summary>
-        public string Name
-        {
-            get
-            {
-                return "Car";
-            }
-        }
+        public string Name => "Car";
 
         /// <summary>
         /// BrandName length is 2 bytes (ushort) max positive value
         /// </summary>
-        public virtual string BrandName
-        {
-            get
-            {
-                return _brandName;
-            }
-        }
+        public virtual string BrandName => _brandName;
 
         /// <summary>
         /// Date is in dd.mm.yyyy format
         /// </summary>
-        public string Date
-        {
-            get
-            {
-                return _date.ToString(FormatConversionSettings.DateFormat);
-            }
-        }
+        public string Date => _date.ToString(FormatConversionSettings.DateFormat);
 
-        public int Day
-        {
-            get
-            {
-                return _date.Day;
-            }
-        }
+        public int Day => _date.Day;
 
-        public int Month
-        {
-            get
-            {
-                return _date.Month;
-            }
-        }
+        public int Month => _date.Month;
 
-        public int Year
-        {
-            get
-            {
-                return _date.Year;
-            }
-        }
+        public int Year => _date.Year;
 
         /// <summary>
         /// Value is always positive
         /// </summary>
-        public int Price
-        {
-            get
-            {
-                return _price;
-            }
-        }
+        public int Price => _price;
 
         public FormatDataItem()
         {
@@ -91,10 +50,7 @@ namespace AsposeFormatConverter.Base
 
         public FormatDataItem(FormatDataItem initialDataItem)
         {
-            if (initialDataItem == null)
-            {
-                throw new ArgumentNullException("Initial data item for constructor is null");
-            }
+            Debug.Assert(initialDataItem != null, "Initial data item for constructor is null");
             SetDate(initialDataItem.Date);
             SetBrandName(initialDataItem.BrandName);
             SetPrice(initialDataItem.Price);
@@ -102,113 +58,66 @@ namespace AsposeFormatConverter.Base
 
         public void SetBrandName(string brandName)
         {
-            if (string.IsNullOrEmpty(brandName))
-            {
-                Console.WriteLine("Brand name should not be empty");
-            }
-            else
-            {
-                _brandName = brandName.Substring(0, Math.Min(brandName.Length, ushort.MaxValue));
-                OnPropertyChanged(nameof(BrandName));
-            }
+            Debug.Assert(!string.IsNullOrEmpty(brandName), "Brand name should not be empty");
+            _brandName = brandName.Substring(0, Math.Min(brandName.Length, ushort.MaxValue));
+            OnPropertyChanged(nameof(BrandName));
         }
 
         public void SetDate(DateTime date)
         {
-            if (DateIsValid(date.Year, date.Month, date.Day))
-            {
-                _date = date;
-                OnPropertyChanged(nameof(Date));
-                OnPropertyChanged(nameof(Year));
-                OnPropertyChanged(nameof(Month));
-                OnPropertyChanged(nameof(Day));
-            }
-            else
-            {
-                Console.WriteLine("Date is invalid");
-            }
+            Debug.Assert(DateIsValid(date.Year, date.Month, date.Day), "Date is invalid");
+            _date = date;
+            OnPropertyChanged(nameof(Date));
+            OnPropertyChanged(nameof(Year));
+            OnPropertyChanged(nameof(Month));
+            OnPropertyChanged(nameof(Day));
         }
 
         public void SetDate(string date)
         {
-            if (string.IsNullOrEmpty(date))
-            {
-                Console.WriteLine("Date string is null or empty");
-            }
-            else
-            {
-                DateTime parsedDate;
-                if (DateTime.TryParseExact(date, FormatConversionSettings.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
-                {
-                    _date = parsedDate;
-                    OnPropertyChanged(nameof(Date));
-                    OnPropertyChanged(nameof(Year));
-                    OnPropertyChanged(nameof(Month));
-                    OnPropertyChanged(nameof(Day));
-                }
-                else
-                {
-                    Console.WriteLine($"Date should be in valid {FormatConversionSettings.DateFormat} format");
-                }
-            }
+            Debug.Assert(!string.IsNullOrEmpty("Date string is null or empty"));
+            DateTime parsedDate;
+            Debug.Assert(DateTime.TryParseExact(date, FormatConversionSettings.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate)
+                || DateTime.TryParse(date, out parsedDate), $"Date should be in valid format");
+            _date = parsedDate;
+            OnPropertyChanged(nameof(Date));
+            OnPropertyChanged(nameof(Year));
+            OnPropertyChanged(nameof(Month));
+            OnPropertyChanged(nameof(Day));
         }
 
         public void SetDate(int year, int month, int day)
         {
-            if (DateIsValid(year, month, day))
-            {
-                _date = new DateTime(year, month, day);
-                OnPropertyChanged(nameof(Date));
-                OnPropertyChanged(nameof(Year));
-                OnPropertyChanged(nameof(Month));
-                OnPropertyChanged(nameof(Day));
-            }
-            else
-            {
-                Console.WriteLine("Date is invalid");
-            }
+            Debug.Assert(DateIsValid(year, month, day), "Date is invalid");
+            _date = new DateTime(year, month, day);
+            OnPropertyChanged(nameof(Date));
+            OnPropertyChanged(nameof(Year));
+            OnPropertyChanged(nameof(Month));
+            OnPropertyChanged(nameof(Day));
         }
 
         public void SetDay(int day)
         {
-            if (DateIsValid(Year, Month, day))
-            {
-                _date = new DateTime(Year, Month, day);
-                OnPropertyChanged(nameof(Day));
-                OnPropertyChanged(nameof(Date));
-            }
-            else
-            {
-                Console.WriteLine("Date is invalid");
-            }
+            Debug.Assert(DateIsValid(Year, Month, day), "Date is invalid");
+            _date = new DateTime(Year, Month, day);
+            OnPropertyChanged(nameof(Day));
+            OnPropertyChanged(nameof(Date));
         }
 
         public void SetMonth(int month)
         {
-            if (DateIsValid(Year, month, Day))
-            {
-                _date = new DateTime(Year, month, Day);
-                OnPropertyChanged(nameof(Month));
-                OnPropertyChanged(nameof(Date));
-            }
-            else
-            {
-                Console.WriteLine("Date is invalid");
-            }
+            Debug.Assert(DateIsValid(Year, month, Day), "Date is invalid");
+            _date = new DateTime(Year, month, Day);
+            OnPropertyChanged(nameof(Month));
+            OnPropertyChanged(nameof(Date));
         }
 
         public void SetYear(int year)
         {
-            if (DateIsValid(year, Month, Day))
-            {
-                _date = new DateTime(year, Month, Day);
-                OnPropertyChanged(nameof(Year));
-                OnPropertyChanged(nameof(Date));
-            }
-            else
-            {
-                Console.WriteLine("Date is invalid");
-            }
+            Debug.Assert(DateIsValid(year, Month, Day), "Date is invalid");
+            _date = new DateTime(year, Month, Day);
+            OnPropertyChanged(nameof(Year));
+            OnPropertyChanged(nameof(Date));
         }
 
         bool DateIsValid(int year, int month, int day)
@@ -218,15 +127,9 @@ namespace AsposeFormatConverter.Base
 
         public void SetPrice(int price)
         {
-            if (price < 0)
-            {
-                Console.WriteLine("Price shouldn't be negative");
-            }
-            else
-            {
-                _price = price;
-                OnPropertyChanged(nameof(Price));
-            }
+            Debug.Assert(price >= 0, "Price should be positive");
+            _price = price;
+            OnPropertyChanged(nameof(Price));
         }
 
         public virtual object Clone()
