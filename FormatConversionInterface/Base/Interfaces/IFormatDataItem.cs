@@ -11,14 +11,8 @@ namespace AsposeFormatConverter.Base
     /// </summary>
     public interface IFormatDataItem : ICloneable, INotifyPropertyChanged, IDisposable
     {
-        /// <summary>
-        /// Logical name which defines the purpose of the data
-        /// </summary>
         string Name { get; }
 
-        /// <summary>
-        /// Date should be in valid dd.mm.yyyy format
-        /// </summary>
         string Date { get; }
 
         int Day { get; }
@@ -27,14 +21,9 @@ namespace AsposeFormatConverter.Base
 
         int Year { get; }
 
-        /// <summary>
-        /// BrandName length should not be more than 2 bytes (ushort) max positive value
-        /// </summary>
         string BrandName { get; }
 
-        /// <summary>
-        /// Price should be >= 0
-        /// </summary>
+
         int Price { get; }
 
         void SetDate(string date);

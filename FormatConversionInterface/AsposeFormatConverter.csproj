@@ -51,9 +51,10 @@
     <Compile Include="Base\Abstracts\FormatProcessorBase.cs" />
     <Compile Include="Base\Abstracts\NotifyPropertyChangedBase.cs" />
     <Compile Include="FormatProcessors\Binary\BinaryFormatProcessor.cs" />
+    <Compile Include="FormatProcessors\Binary\BinaryFormatSerializationData.cs" />
     <Compile Include="FormatProcessors\XML\XmlFormatDataItem.cs" />
     <Compile Include="FormatProcessors\XML\XmlFormatProcessor.cs" />
-    <Compile Include="FormatProcessors\XML\XmlFormatSerializedData.cs" />
+    <Compile Include="FormatProcessors\XML\XmlFormatSerializationData.cs" />
     <Compile Include="Base\Interfaces\ICommonFormatConverter.cs" />
     <Compile Include="Base\Interfaces\IFormatDataItem.cs" />
     <Compile Include="Base\Interfaces\IFormatProcessor.cs" />

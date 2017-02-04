@@ -9,7 +9,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 {
     internal class XmlFormatDataItem : FormatDataItem
     {
-        public XmlFormatDataItem(XmlFormatSerializedData.Car xmlSerializedDataItem)
+        public XmlFormatDataItem(XmlFormatSerializationData.XmlFormatSerializationDataItem xmlSerializedDataItem)
         {
             Debug.Assert(xmlSerializedDataItem != null, "Can't init XmlFormatDataItem ctor with null");
             SetDate(xmlSerializedDataItem.Date);

@@ -25,7 +25,7 @@ namespace AsposeFormatConverter.Base
         /// <summary>
         /// BrandName length is 2 bytes (ushort) max positive value
         /// </summary>
-        public virtual string BrandName => _brandName;
+        public string BrandName => _brandName;
 
         /// <summary>
         /// Date is in dd.mm.yyyy format
@@ -120,7 +120,7 @@ namespace AsposeFormatConverter.Base
             OnPropertyChanged(nameof(Date));
         }
 
-        bool DateIsValid(int year, int month, int day)
+        private bool DateIsValid(int year, int month, int day)
         {
             return year > 0 && year <= 9999 && month > 0 && month <= 12 && day > 0 && DateTime.DaysInMonth(year, month) >= day;
         }
@@ -132,7 +132,7 @@ namespace AsposeFormatConverter.Base
             OnPropertyChanged(nameof(Price));
         }
 
-        public virtual object Clone()
+        public object Clone()
         {
             return new FormatDataItem(this);
         }

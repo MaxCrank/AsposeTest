@@ -18,12 +18,12 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         private static readonly XmlSerializerNamespaces _emptyXmlNamespaces = new XmlSerializerNamespaces();
         private static XmlSchema _xmlSchema;
 
-        private readonly XmlSerializer _xmlFormatSerializer = new XmlSerializer(typeof(XmlFormatSerializedData));
+        private readonly XmlSerializer _xmlFormatSerializer = new XmlSerializer(typeof(XmlFormatSerializationData));
         private readonly XmlDocument _xmlFormatDocLoader = new XmlDocument();
 
         public override ConvertedFormat Format => ConvertedFormat.XML;
 
-        static void ReadXmlSchema()
+        private static void ReadXmlSchema()
         {
             if (_xmlSchema == null)
             {
@@ -57,23 +57,17 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         /// </returns>
         public override object GetData()
         {
-            XmlFormatSerializedData serializedFormatData = new XmlFormatSerializedData();
-            serializedFormatData.Cars = new XmlFormatSerializedData.Car[Data.Count];
-            for (int x = 0; x < Data.Count; x++)
-            {
-                serializedFormatData.Cars[x] = new XmlFormatSerializedData.Car(this[x]);
-            }
-            return serializedFormatData;
+            return new XmlFormatSerializationData(this);
         }
 
         protected override void WriteFormattedDataToStream(object data, Stream stream)
         {
-            Debug.Assert(data is XmlFormatSerializedData, "Can't write null or invalid data type to stream");
+            Debug.Assert(data is XmlFormatSerializationData, "Can't write null or invalid data type to stream");
             Debug.Assert(stream != null, "Can't write data to null stream");
             using (var xmlTextWriter = new XmlTextWriter(stream, _defaultEncoding))
             {
                 xmlTextWriter.Formatting = Formatting.Indented;
-                _xmlFormatSerializer.Serialize(xmlTextWriter, (XmlFormatSerializedData) data, _emptyXmlNamespaces);
+                _xmlFormatSerializer.Serialize(xmlTextWriter, (XmlFormatSerializationData) data, _emptyXmlNamespaces);
                 stream.Close();
             }
         }
@@ -99,10 +93,10 @@ namespace AsposeFormatConverter.FormatProcessors.XML
                     _xmlFormatDocLoader.LoadXml(xml);
                     _xmlFormatDocLoader.Validate(null);
                     _xmlFormatDocLoader.RemoveAll();
-                    XmlFormatSerializedData document = null;
+                    XmlFormatSerializationData document = null;
                     using (var reader = new StringReader(xml))
                     {
-                        document = _xmlFormatSerializer.Deserialize(reader) as XmlFormatSerializedData;
+                        document = _xmlFormatSerializer.Deserialize(reader) as XmlFormatSerializationData;
                     }
                     if (document == null)
                     {
@@ -110,7 +104,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
                     }
                     else
                     {
-                        foreach (var car in document.Cars)
+                        foreach (var car in document.XmlFormatSerializationDataItems)
                         {
                             AddDataItem(new XmlFormatDataItem(car), false);
                         }

@@ -7,11 +7,11 @@ using System.IO;
 
 namespace FormatConversionTester
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-			/*
+            /*
             CommonFormatConverter converter = new CommonFormatConverter();
             string filePath = "CarTest.xml";
             ConvertedFormat format;
@@ -30,7 +30,7 @@ namespace FormatConversionTester
                 }
                 Console.ReadLine();
             }
-			*/
+            */
         }
     }
 }
