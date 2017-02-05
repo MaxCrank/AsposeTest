@@ -11,8 +11,6 @@ namespace AsposeFormatConverter.Base
     /// </summary>
     public interface IFormatDataItem : ICloneable, INotifyPropertyChanged, IDisposable
     {
-        string Name { get; }
-
         string Date { get; }
 
         int Day { get; }

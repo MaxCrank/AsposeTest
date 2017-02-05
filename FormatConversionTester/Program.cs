@@ -11,7 +11,6 @@ namespace FormatConversionTester
     {
         private static void Main(string[] args)
         {
-            /*
             CommonFormatConverter converter = new CommonFormatConverter();
             string filePath = "CarTest.xml";
             ConvertedFormat format;
@@ -30,7 +29,6 @@ namespace FormatConversionTester
                 }
                 Console.ReadLine();
             }
-            */
         }
     }
 }

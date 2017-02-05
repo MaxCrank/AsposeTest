@@ -50,6 +50,7 @@
     <Compile Include="Base\FormatDataItem.cs" />
     <Compile Include="Base\Abstracts\FormatProcessorBase.cs" />
     <Compile Include="Base\Abstracts\NotifyPropertyChangedBase.cs" />
+    <Compile Include="FormatProcessors\Binary\BinaryFormatDataItem.cs" />
     <Compile Include="FormatProcessors\Binary\BinaryFormatProcessor.cs" />
     <Compile Include="FormatProcessors\Binary\BinaryFormatSerializationData.cs" />
     <Compile Include="FormatProcessors\XML\XmlFormatDataItem.cs" />

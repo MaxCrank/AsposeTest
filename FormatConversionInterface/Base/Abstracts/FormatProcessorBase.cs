@@ -56,7 +56,7 @@ namespace AsposeFormatConverter.Base
             _collectionChangedDelegates.Remove(eventHandler);
         }
 
-        public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = false)
+        public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem)
         {
             Debug.Assert(dataItem != null, "Can't add null-valued data item");
             Debug.Assert(!Data.Contains(dataItem), "Item is already in the Data collection. Please, use clone option to make a copy if that was your intention.");
@@ -100,8 +100,10 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfuly parsed</returns>
         public bool ReadFromFile(string filePath)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath), "Can't read file at null or empty path");
-            Debug.Assert(File.Exists(filePath), $"File {filePath} does not exist");
+            bool emptyPath = string.IsNullOrEmpty(filePath);
+            Debug.Assert(!emptyPath, "Can't read file at null or empty path");
+            bool fileExists = File.Exists(filePath);
+            Debug.Assert(fileExists, $"File {filePath} does not exist");
             bool result = false;
             try
             {
@@ -110,6 +112,7 @@ namespace AsposeFormatConverter.Base
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                throw;
             }
             return result;
         }
@@ -119,7 +122,7 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="allBytes"></param>
         /// <returns></returns>
-        protected abstract bool ParseBytes(byte[] allBytes);
+        protected abstract bool ParseBytes(IEnumerable<byte> allBytes);
 
         public bool RemoveDataItem(IFormatDataItem dataItem)
         {
@@ -186,7 +189,12 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfully filled with formatted data></returns>
         public bool SaveToFile(string filePath, bool replace)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath), "Can't save file at null or empty path");
+            bool emptyPath = string.IsNullOrEmpty(filePath);
+            Debug.Assert(!emptyPath, "Can't save file at null or empty path");
+            if (emptyPath)
+            {
+                throw new ArgumentException("Can't save file at null or empty path");
+            }
             bool result = false;
             string tempFilePath = filePath + FormatConversionSettings.TempFileExtension;
             string backupFilePath = filePath + FormatConversionSettings.BackupFileExtension;
@@ -233,22 +241,18 @@ namespace AsposeFormatConverter.Base
         }
 
         /// <summary>
-        /// Writes formatted data to the stream using format-specific features
+        /// Writes formatted data to the stream using format-specific features. Important: stream is not closed in case it needs to be processed further.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="stream"></param>
         /// <returns>If data was successfully written to the stream</returns>
         protected virtual void WriteFormattedDataToStream(object data, Stream stream)
         {
-            Debug.Assert(data is byte[], "Can't write null or invalid data type to stream");
+            Debug.Assert(data is IEnumerable<byte>, "Can't write null or invalid data type to stream");
             Debug.Assert(stream != null, "Can't write data to null stream");
-            using (var binaryWriter = new BinaryWriter(stream))
-            {
-                binaryWriter.Write((byte[]) data);
-                binaryWriter.Flush();
-                binaryWriter.Close();
-                stream.Close();
-            }
+            var binaryWriter = new BinaryWriter(stream);
+            binaryWriter.Write(((IEnumerable<byte>) data).ToArray());
+            binaryWriter.Flush();
         }
 
         /// <summary>
@@ -256,14 +260,7 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public IFormatDataItem this[int index]
-        {
-            get
-            {
-                Debug.Assert(_readonlyDataCollection.Count > 0 && index >= 0 && index < _readonlyDataCollection.Count, "Data item index is out of range");
-                return _readonlyDataCollection[index];
-            }
-        }
+        public IFormatDataItem this[int index] => _readonlyDataCollection[index];
 
         public void Dispose()
         {

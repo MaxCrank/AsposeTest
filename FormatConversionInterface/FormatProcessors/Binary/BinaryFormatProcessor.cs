@@ -9,6 +9,8 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
 {
     internal sealed class BinaryFormatProcessor : FormatProcessorBase
     {
+        public bool UseSchema { get; set; } = true;
+
         /// <inheritdoc />
         public override ConvertedFormat Format => ConvertedFormat.BIN;
 
@@ -21,9 +23,20 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         }
 
         /// <inheritdoc />
-        protected override bool ParseBytes(byte[] allBytes)
+        protected override bool ParseBytes(IEnumerable<byte> allBytes)
         {
-            throw new NotImplementedException();
+            bool result = false;
+            BinaryFormatSerializationData binaryFormatSerializationData;
+            result = BinaryFormatSerializationData.TryParseBytes(allBytes, out binaryFormatSerializationData, UseSchema);
+            if (result)
+            {
+                ClearData();
+                foreach (var binaryDataItem in binaryFormatSerializationData.DataItems)
+                {
+                    AddDataItem(new BinaryFormatDataItem(binaryDataItem), false);
+                }
+            }
+            return result;
         }
     }
 }

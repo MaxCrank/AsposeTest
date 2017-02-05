@@ -50,7 +50,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 
             public XmlFormatSerializationDataItem(IFormatDataItem formatDataItem)
             {
-                Debug.Assert(formatDataItem != null, "Can't init XmlFormatSerializationDataItem ctor with null");
+                Debug.Assert(formatDataItem != null, $"Can't init {nameof(XmlFormatSerializationDataItem)} ctor with null");
                 Date = formatDataItem.Date;
                 BrandName = formatDataItem.BrandName;
                 Price = formatDataItem.Price;

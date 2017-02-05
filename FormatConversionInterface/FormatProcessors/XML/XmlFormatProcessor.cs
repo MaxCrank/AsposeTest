@@ -60,16 +60,15 @@ namespace AsposeFormatConverter.FormatProcessors.XML
             return new XmlFormatSerializationData(this);
         }
 
+        /// <inheritdoc />
         protected override void WriteFormattedDataToStream(object data, Stream stream)
         {
             Debug.Assert(data is XmlFormatSerializationData, "Can't write null or invalid data type to stream");
             Debug.Assert(stream != null, "Can't write data to null stream");
-            using (var xmlTextWriter = new XmlTextWriter(stream, _defaultEncoding))
-            {
-                xmlTextWriter.Formatting = Formatting.Indented;
-                _xmlFormatSerializer.Serialize(xmlTextWriter, (XmlFormatSerializationData) data, _emptyXmlNamespaces);
-                stream.Close();
-            }
+            var xmlTextWriter = new XmlTextWriter(stream, _defaultEncoding);
+            xmlTextWriter.Formatting = Formatting.Indented;
+            _xmlFormatSerializer.Serialize(xmlTextWriter, (XmlFormatSerializationData) data, _emptyXmlNamespaces);
+            xmlTextWriter.Flush();
         }
 
         /// <summary>
@@ -77,48 +76,36 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         /// </summary>
         /// <param name="allBytes"></param>
         /// <returns></returns>
-        protected override bool ParseBytes(byte[] allBytes)
+        protected override bool ParseBytes(IEnumerable<byte> allBytes)
         {
             bool result = false;
-            if (allBytes != null && allBytes.Length > 0)
+            var byteArray = allBytes as byte[];
+            string xml = _defaultEncoding.GetString(byteArray);
+            int startIndex = xml.IndexOf('<');
+            if (startIndex > 0)
             {
-                try
-                {
-                    string xml = _defaultEncoding.GetString(allBytes);
-                    int startIndex = xml.IndexOf('<');
-                    if (startIndex > 0)
-                    {
-                        xml = xml.Substring(startIndex, xml.Length - startIndex);
-                    }
-                    _xmlFormatDocLoader.LoadXml(xml);
-                    _xmlFormatDocLoader.Validate(null);
-                    _xmlFormatDocLoader.RemoveAll();
-                    XmlFormatSerializationData document = null;
-                    using (var reader = new StringReader(xml))
-                    {
-                        document = _xmlFormatSerializer.Deserialize(reader) as XmlFormatSerializationData;
-                    }
-                    if (document == null)
-                    {
-                        Console.WriteLine("XML deserialization failed");
-                    }
-                    else
-                    {
-                        foreach (var car in document.XmlFormatSerializationDataItems)
-                        {
-                            AddDataItem(new XmlFormatDataItem(car), false);
-                        }
-                        result = true;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                xml = xml.Substring(startIndex, xml.Length - startIndex);
+            }
+            _xmlFormatDocLoader.LoadXml(xml);
+            _xmlFormatDocLoader.Validate(null);
+            _xmlFormatDocLoader.RemoveAll();
+            XmlFormatSerializationData document = null;
+            using (var reader = new StringReader(xml))
+            {
+                document = _xmlFormatSerializer.Deserialize(reader) as XmlFormatSerializationData;
+            }
+            if (document == null)
+            {
+                Console.WriteLine("XML deserialization failed");
             }
             else
             {
-                Console.WriteLine("Can't parse null-valued or empty byte array to XML");
+                ClearData();
+                foreach (var car in document.XmlFormatSerializationDataItems)
+                {
+                    AddDataItem(new XmlFormatDataItem(car), false);
+                }
+                result = true;
             }
             return result;
         }
