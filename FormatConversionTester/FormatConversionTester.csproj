@@ -46,7 +46,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FormatConversionInterface\AsposeFormatConverter.csproj">
+    <ProjectReference Include="..\AsposeFormatConverter\AsposeFormatConverter.csproj">
       <Project>{f1eb81d2-1b10-4a6c-8ee9-53983ed60d8f}</Project>
       <Name>AsposeFormatConverter</Name>
     </ProjectReference>

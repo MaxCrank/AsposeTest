@@ -44,6 +44,12 @@ namespace AsposeFormatConverter.Base
 
         void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem);
 
+        void AddNewDataItem(int day, int month, int year, string brandName, int price);
+
+        void AddNewDataItem(DateTime date, string brandName, int price);
+
+        void AddNewDataItem(string date, string brandName, int price);
+
         bool RemoveDataItem(IFormatDataItem dataItem);
 
         /// <summary>

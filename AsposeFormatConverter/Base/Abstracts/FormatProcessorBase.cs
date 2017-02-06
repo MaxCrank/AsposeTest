@@ -59,8 +59,36 @@ namespace AsposeFormatConverter.Base
         public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem)
         {
             Debug.Assert(dataItem != null, "Can't add null-valued data item");
-            Debug.Assert(!Data.Contains(dataItem), "Item is already in the Data collection. Please, use clone option to make a copy if that was your intention.");
+            Debug.Assert(!Data.Contains(dataItem), "Item is already in Data collection. Please, use clone option to make a copy if that was your intention.");
             _dataCollection.Add(cloneInputDataItem ? (dataItem.Clone() as IFormatDataItem) : dataItem);
+        }
+
+
+        public void AddNewDataItem(int year, int month, int day, string brandName, int price)
+        {
+            var newItem = new FormatDataItem();
+            newItem.SetDate(year, month, day);
+            newItem.SetBrandName(brandName);
+            newItem.SetPrice(price);
+            _dataCollection.Add(newItem);
+        }
+
+        public void AddNewDataItem(DateTime date, string brandName, int price)
+        {
+            var newItem = new FormatDataItem();
+            newItem.SetDate(date);
+            newItem.SetBrandName(brandName);
+            newItem.SetPrice(price);
+            _dataCollection.Add(newItem);
+        }
+
+        public void AddNewDataItem(string date, string brandName, int price)
+        {
+            var newItem = new FormatDataItem();
+            newItem.SetDate(date);
+            newItem.SetBrandName(brandName);
+            newItem.SetPrice(price);
+            _dataCollection.Add(newItem);
         }
 
         /// <summary>
@@ -100,21 +128,11 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfuly parsed</returns>
         public bool ReadFromFile(string filePath)
         {
-            bool emptyPath = string.IsNullOrEmpty(filePath);
-            Debug.Assert(!emptyPath, "Can't read file at null or empty path");
-            bool fileExists = File.Exists(filePath);
-            Debug.Assert(fileExists, $"File {filePath} does not exist");
-            bool result = false;
-            try
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
-                result = ParseBytes(File.ReadAllBytes(filePath));
+                throw new ArgumentException("Can't read from path leading to non-existing file");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-            return result;
+            return ParseBytes(File.ReadAllBytes(filePath));
         }
 
         /// <summary>
@@ -143,6 +161,11 @@ namespace AsposeFormatConverter.Base
             return result;
         }
 
+        /// <summary>
+        /// Sets the data.
+        /// </summary>
+        /// <param name="initialData">The initial data.</param>
+        /// <param name="cloneInitialDataItems">if set to <c>true</c> [clone initial data items].</param>
         public void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems = true)
         {
             ClearData();
@@ -202,40 +225,33 @@ namespace AsposeFormatConverter.Base
             {
                 File.Delete(tempFilePath);
             }
-            try
+            using (var fileStream = File.Open(tempFilePath, FileMode.Create))
             {
-                using (var fileStream = File.Open(tempFilePath, FileMode.Create))
+                if (!fileStream.CanWrite)
                 {
-                    if (!fileStream.CanWrite)
+                    File.Delete(tempFilePath);
+                    fileStream.Close();
+                    throw new IOException("FileStream can't write");
+                }
+                else if (!File.Exists(filePath) || replace)
+                {
+                    WriteFormattedDataToStream(GetData(), fileStream);
+                    fileStream.Close();
+                    result = true;
+                    if (File.Exists(filePath))
                     {
-                        Console.WriteLine("FileStream can't write");
-                        File.Delete(tempFilePath);
-                        fileStream.Close();
-                    }
-                    else if (!File.Exists(filePath) || replace)
-                    {
-                        WriteFormattedDataToStream(GetData(), fileStream);
-                        fileStream.Close();
-                        result = true;
-                        if (File.Exists(filePath))
-                        {
-                            File.Replace(tempFilePath, filePath, backupFilePath);
-                        }
-                        else
-                        {
-                            File.Copy(tempFilePath, filePath);
-                            File.Delete(tempFilePath);
-                        }
+                        File.Replace(tempFilePath, filePath, backupFilePath);
                     }
                     else
                     {
-                        Console.WriteLine("Can't save file because replacement option was disabled for existing files");
+                        File.Copy(tempFilePath, filePath);
+                        File.Delete(tempFilePath);
                     }
                 }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                else
+                {
+                    Console.WriteLine("Can't save file because replacement option was disabled for existing files");
+                }
             }
             return result;
         }
@@ -248,8 +264,8 @@ namespace AsposeFormatConverter.Base
         /// <returns>If data was successfully written to the stream</returns>
         protected virtual void WriteFormattedDataToStream(object data, Stream stream)
         {
-            Debug.Assert(data is IEnumerable<byte>, "Can't write null or invalid data type to stream");
-            Debug.Assert(stream != null, "Can't write data to null stream");
+            Debug.Assert(data is IEnumerable<byte>, $"{GetType().Name} can't write null or invalid data type to stream");
+            Debug.Assert(stream != null, $"{GetType().Name} can't write data to null stream");
             var binaryWriter = new BinaryWriter(stream);
             binaryWriter.Write(((IEnumerable<byte>) data).ToArray());
             binaryWriter.Flush();

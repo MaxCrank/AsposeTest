@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -53,7 +54,7 @@ namespace AsposeFormatConverter.Base
             var processor = _formatProcessors.Find(p => p.Format == format);
             if (processor == null)
             {
-                Console.WriteLine($"Not supported format: {format}");
+                throw new ArgumentException($"Format {format} is not supported");
             }
             return processor?.GetFormatProcessor();
         }
@@ -67,15 +68,19 @@ namespace AsposeFormatConverter.Base
         /// <returns>If conversion was successful</returns>
         public bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat)
         {
-            Debug.Assert(inputFormatProcessor != null, "Can't convert data from null-valued input format processor");
-            Debug.Assert(!string.IsNullOrEmpty(outputFilePath), "Can't save data at null or empty file path");
+            if (inputFormatProcessor == null)
+            {
+                throw new ArgumentNullException("Can't convert data from null-valued input format processor");
+            }
+            if (string.IsNullOrEmpty(outputFilePath))
+            {
+                throw new ArgumentException("Can't save data at null or empty file path");
+            }
             bool result = false;
-            var outputProcessor = CreateFormatProcessor(outputFormat);
-            if (outputProcessor != null)
+            using(var outputProcessor = CreateFormatProcessor(outputFormat))
             {
                 outputProcessor.SetData(inputFormatProcessor.Data.AsEnumerable(), true);
                 result = outputProcessor.SaveToFile(outputFilePath);
-                outputProcessor.Dispose();
             }
             return result;
         }
@@ -89,25 +94,14 @@ namespace AsposeFormatConverter.Base
         /// <returns>If conversion was successful</returns>
         public bool Convert(string inputFilePath, string outputFilePath, ConvertedFormat outputFormat)
         {
-            Debug.Assert(!string.IsNullOrEmpty(inputFilePath), "Can't read file from null or empty path");
-            Debug.Assert(!string.IsNullOrEmpty(outputFilePath), "Can't write file to null or empty path");
-            Debug.Assert(File.Exists(inputFilePath), "Can't read from path leading to non-existing file");
-            Debug.Assert(outputFormat != ConvertedFormat.UNKNOWN, "Converted format should not be unknown");
             bool result = false;
             ConvertedFormat inputFormat;
             if (TryGetSupportedFormatFromPath(inputFilePath, out inputFormat))
             {
-                var outputFormatProcessor = CreateFormatProcessor(outputFormat);
-                if (outputFormatProcessor != null)
+                using (var inputProcessor = CreateFormatProcessor(inputFormat))
                 {
-                    var inputProcessor = CreateFormatProcessor(inputFormat);
-                    if (inputProcessor.ReadFromFile(inputFilePath))
-                    {
-                        outputFormatProcessor.SetData(inputProcessor.Data, false);
-                        result = outputFormatProcessor.SaveToFile(outputFilePath);
-                        outputFormatProcessor.Dispose();
-                        inputProcessor.Dispose();
-                    }
+                    result = inputProcessor.ReadFromFile(inputFilePath) 
+                        && Convert(inputProcessor, outputFilePath, outputFormat);
                 }
             }
             return result;
@@ -124,23 +118,11 @@ namespace AsposeFormatConverter.Base
         public bool Convert(string inputFilePath, ConvertedFormat inputFormat, string outputFilePath,
             ConvertedFormat outputFormat)
         {
-            Debug.Assert(!string.IsNullOrEmpty(inputFilePath), "Can't read file from null or empty path");
-            Debug.Assert(!string.IsNullOrEmpty(outputFilePath), "Can't write file to null or empty path");
-            Debug.Assert(File.Exists(inputFilePath), "Can't read from path leading to non-existing file");
-            Debug.Assert(inputFormat != ConvertedFormat.UNKNOWN && outputFormat != ConvertedFormat.UNKNOWN,
-                "Converted format should not be unknown");
             bool result = false;
-            var inputFormatProcessor = CreateFormatProcessor(inputFormat);
-            if (inputFormatProcessor != null && inputFormatProcessor.ReadFromFile(inputFilePath))
+            using (var inputFormatProcessor = CreateFormatProcessor(inputFormat))
             {
-                var outputFormatProcessor = CreateFormatProcessor(outputFormat);
-                if (outputFormatProcessor != null)
-                {
-                    outputFormatProcessor.SetData(inputFormatProcessor.Data, true);
-                    result = outputFormatProcessor.SaveToFile(outputFilePath);
-                    outputFormatProcessor.Dispose();
-                    inputFormatProcessor.Dispose();
-                }
+                result = inputFormatProcessor.ReadFromFile(inputFilePath) &&
+                    Convert(inputFormatProcessor, outputFilePath, outputFormat);
             }
             return result;
         }
@@ -153,8 +135,10 @@ namespace AsposeFormatConverter.Base
         /// <returns>If supported format was revealed</returns>
         public bool TryGetSupportedFormatFromPath(string filePath, out ConvertedFormat format)
         {
-            Debug.Assert(!string.IsNullOrEmpty(filePath), "Extension can't be retrieved from null or empty file path");
-            Debug.Assert(File.Exists(filePath), "Extension can't be retrieved from path leading to non-existing file");
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                throw new ArgumentException("Extension can't be retrieved from path leading to non-existing file");
+            }
             bool result = false;
             format = ConvertedFormat.UNKNOWN;
             if (_fullPathFormatRegex.IsMatch(filePath))

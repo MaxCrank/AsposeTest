@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using AsposeFormatConverter.Properties;
 
 namespace AsposeFormatConverter.FormatProcessors.Binary
 {
     internal sealed class BinaryFormatProcessor : FormatProcessorBase
     {
-        public bool UseSchema { get; set; } = true;
-
         /// <inheritdoc />
         public override ConvertedFormat Format => ConvertedFormat.BIN;
 
@@ -27,14 +26,14 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         {
             bool result = false;
             BinaryFormatSerializationData binaryFormatSerializationData;
-            result = BinaryFormatSerializationData.TryParseBytes(allBytes, out binaryFormatSerializationData, UseSchema);
-            if (result)
+            if (BinaryFormatSerializationData.TryParseBytes(allBytes, out binaryFormatSerializationData))
             {
                 ClearData();
                 foreach (var binaryDataItem in binaryFormatSerializationData.DataItems)
                 {
                     AddDataItem(new BinaryFormatDataItem(binaryDataItem), false);
                 }
+                result = true;
             }
             return result;
         }

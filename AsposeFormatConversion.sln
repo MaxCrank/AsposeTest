@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsposeFormatConverter", "FormatConversionInterface\AsposeFormatConverter.csproj", "{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormatConversionTester", "FormatConversionTester\FormatConversionTester.csproj", "{673D268C-0C37-48ED-AA0B-33B92162533E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsposeFormatConverter", "AsposeFormatConverter\AsposeFormatConverter.csproj", "{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{673D268C-0C37-48ED-AA0B-33B92162533E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{673D268C-0C37-48ED-AA0B-33B92162533E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{673D268C-0C37-48ED-AA0B-33B92162533E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{673D268C-0C37-48ED-AA0B-33B92162533E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

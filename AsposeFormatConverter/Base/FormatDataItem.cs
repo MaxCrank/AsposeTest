@@ -14,7 +14,7 @@ namespace AsposeFormatConverter.Base
     internal class FormatDataItem : NotifyPropertyChangedBase, IFormatDataItem
     {
         private string _brandName = string.Empty;
-        private DateTime _date = new DateTime(1970, 1, 1);
+        private DateTime _date = new DateTime();
         private int _price = 0;
 
         /// <summary>
@@ -84,10 +84,10 @@ namespace AsposeFormatConverter.Base
             DateTime parsedDate;
             bool dateWasParsed = DateTime.TryParseExact(date, FormatConversionSettings.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate)
                 || DateTime.TryParse(date, out parsedDate);
-            Debug.Assert(dateWasParsed, "Date should be in valid format with valid value");
+            Debug.Assert(dateWasParsed, $"Date {date} should be in valid format with valid value");
             if (!dateWasParsed)
             {
-                throw new ArgumentException("Date should be in valid format with valid value");
+                throw new ArgumentException($"Date {date} should be in valid format with valid value");
             }
             _date = parsedDate;
             OnPropertyChanged(nameof(Date));
@@ -96,13 +96,13 @@ namespace AsposeFormatConverter.Base
             OnPropertyChanged(nameof(Day));
         }
 
-        public void SetDate(int year, int month, int day)
+        public void SetDate(int day, int month, int year)
         {
-            bool dateIsValid = DateIsValid(year, month, day);
-            Debug.Assert(dateIsValid, "Date is invalid");
+            bool dateIsValid = DateIsValid(day, month, year);
+            Debug.Assert(dateIsValid, $"Date is invalid: {day}.{month}.{year}");
             if (!dateIsValid)
             {
-                throw new ArgumentException("Date should be valid");
+                throw new ArgumentException($"Date is invalid: {day}.{month}.{year}");
             }
             _date = new DateTime(year, month, day);
             OnPropertyChanged(nameof(Date));
@@ -113,7 +113,12 @@ namespace AsposeFormatConverter.Base
 
         public void SetDay(int day)
         {
-            Debug.Assert(DateIsValid(Year, Month, day), "Date is invalid");
+            bool dateIsValid = DateIsValid(day, Month, Year);
+            Debug.Assert(dateIsValid, $"Date {day}.{Month}.{Year} is invalid");
+            if (!dateIsValid)
+            {
+                throw new ArgumentException($"Date {day}.{Month}.{Year} is invalid");
+            }
             _date = new DateTime(Year, Month, day);
             OnPropertyChanged(nameof(Day));
             OnPropertyChanged(nameof(Date));
@@ -121,11 +126,11 @@ namespace AsposeFormatConverter.Base
 
         public void SetMonth(int month)
         {
-            bool dateIsValid = DateIsValid(Year, month, Day);
-            Debug.Assert(dateIsValid, "Date is invalid");
+            bool dateIsValid = DateIsValid(Day, month, Year);
+            Debug.Assert(dateIsValid, $"Date {Day}.{month}.{Year} is invalid");
             if (!dateIsValid)
             {
-                throw new ArgumentException("Date should be valid");
+                throw new ArgumentException($"Date {Day}.{month}.{Year} is invalid");
             }
             _date = new DateTime(Year, month, Day);
             OnPropertyChanged(nameof(Month));
@@ -134,18 +139,18 @@ namespace AsposeFormatConverter.Base
 
         public void SetYear(int year)
         {
-            bool dateIsValid = DateIsValid(year, Month, Day);
-            Debug.Assert(dateIsValid, "Date is invalid");
+            bool dateIsValid = DateIsValid(Day, Month, year);
+            Debug.Assert(dateIsValid, $"Date {Day}.{Month}.{year} is invalid");
             if (!dateIsValid)
             {
-                throw new ArgumentException("Date should be valid");
+                throw new ArgumentException($"Date {Day}.{Month}.{year} is invalid");
             }
             _date = new DateTime(year, Month, Day);
             OnPropertyChanged(nameof(Year));
             OnPropertyChanged(nameof(Date));
         }
 
-        private bool DateIsValid(int year, int month, int day)
+        private bool DateIsValid(int day, int month, int year)
         {
             return year > 0 && year <= 9999 && month > 0 && month <= 12 && day > 0 && DateTime.DaysInMonth(year, month) >= day;
         }

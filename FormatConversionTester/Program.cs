@@ -12,22 +12,26 @@ namespace FormatConversionTester
         private static void Main(string[] args)
         {
             CommonFormatConverter converter = new CommonFormatConverter();
-            string filePath = "CarTest.xml";
-            ConvertedFormat format;
-            if (converter.TryGetSupportedFormatFromPath(filePath, out format))
+            using (var binConverter = converter.CreateFormatProcessor(ConvertedFormat.BIN))
             {
-                using (var formatProcessor = converter.CreateFormatProcessor(format))
+                binConverter.AddNewDataItem(10, 2, 1000, "Car", 100500);
+                binConverter.SaveToFile("Car.bin");
+                converter.Convert(binConverter, "Car.xml", ConvertedFormat.XML);
+            }
+            using (var xmlConverter = converter.CreateFormatProcessor(ConvertedFormat.XML))
+            {
+                xmlConverter.ReadFromFile("Car.xml");
+                xmlConverter.AddNewDataItem(15, 5, 2000, "BlaCar", 90);
+                xmlConverter.SaveToFile("BlaCar.xml");
+                converter.Convert("BlaCar.xml", "BlaCar.bin" , ConvertedFormat.BIN);
+            }
+            using (var binConverter = converter.CreateFormatProcessor(ConvertedFormat.BIN))
+            {
+                if (binConverter.ReadFromFile("BlaCar.bin"))
                 {
-                    if (formatProcessor.ReadFromFile(filePath))
-                    {
-                        foreach (var dataItem in formatProcessor.Data)
-                        {
-                            Console.WriteLine(dataItem.ToString());
-                        }
-                    }
-                    formatProcessor.SaveToFile("CarTestNew.xml");
+                    binConverter.AddNewDataItem(5, 12, 2005, "BlaBlaCar", 999);
+                    converter.Convert(binConverter, "BlaBlaCar.xml", ConvertedFormat.XML);
                 }
-                Console.ReadLine();
             }
         }
     }

@@ -7,8 +7,8 @@
     <ProjectGuid>{F1EB81D2-1B10-4A6C-8EE9-53983ED60D8F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FormatConversion.Base</RootNamespace>
-    <AssemblyName>FormatConversion.Base</AssemblyName>
+    <RootNamespace>AsposeFormatConverter</RootNamespace>
+    <AssemblyName>AsposeFormatConverter</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -43,15 +44,36 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormatConversionSettings.cs" />
-    <Compile Include="FormatDataItem.cs" />
-    <Compile Include="Abstracts\FormatProcessorBase.cs" />
-    <Compile Include="Abstracts\NotifyPropertyChangedBase.cs" />
-    <Compile Include="Interfaces\IFormatDataItem.cs" />
-    <Compile Include="Interfaces\IFormatProcessor.cs" />
+    <Compile Include="Base\CommonFormatConverter.cs" />
+    <Compile Include="Base\ConvertedFormat.cs" />
+    <Compile Include="Base\FormatConversionSettings.cs" />
+    <Compile Include="Base\FormatDataItem.cs" />
+    <Compile Include="Base\Abstracts\FormatProcessorBase.cs" />
+    <Compile Include="Base\Abstracts\NotifyPropertyChangedBase.cs" />
+    <Compile Include="FormatProcessors\Binary\BinaryFormatDataItem.cs" />
+    <Compile Include="FormatProcessors\Binary\BinaryFormatProcessor.cs" />
+    <Compile Include="FormatProcessors\Binary\BinaryFormatSerializationData.cs" />
+    <Compile Include="FormatProcessors\XML\XmlFormatDataItem.cs" />
+    <Compile Include="FormatProcessors\XML\XmlFormatProcessor.cs" />
+    <Compile Include="FormatProcessors\XML\XmlFormatSerializationData.cs" />
+    <Compile Include="Base\Interfaces\ICommonFormatConverter.cs" />
+    <Compile Include="Base\Interfaces\IFormatDataItem.cs" />
+    <Compile Include="Base\Interfaces\IFormatProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FormatProcessors\XML\XmlFormatSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

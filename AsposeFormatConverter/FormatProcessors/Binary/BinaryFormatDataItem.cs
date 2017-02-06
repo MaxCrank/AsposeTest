@@ -8,7 +8,9 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         public BinaryFormatDataItem(BinaryFormatSerializationData.BinaryFormatSerializationDataItem binaryFormatSerializationDataItem)
         {
             Debug.Assert(binaryFormatSerializationDataItem != null, $"Can't init {nameof(BinaryFormatDataItem)} ctor with null");
-
+            SetDate(binaryFormatSerializationDataItem.Day, binaryFormatSerializationDataItem.Month, binaryFormatSerializationDataItem.Year);
+            SetBrandName(binaryFormatSerializationDataItem.BrandName);
+            SetPrice(binaryFormatSerializationDataItem.Price);
         }
     }
 }
