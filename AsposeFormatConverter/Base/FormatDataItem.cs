@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.Base
 {
     /// <summary>

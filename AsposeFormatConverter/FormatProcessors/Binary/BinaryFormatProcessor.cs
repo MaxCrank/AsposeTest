@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using AsposeFormatConverter.Properties;
 
+[assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.FormatProcessors.Binary
 {
     internal sealed class BinaryFormatProcessor : FormatProcessorBase

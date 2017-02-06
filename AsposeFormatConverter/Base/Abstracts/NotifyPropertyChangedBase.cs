@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.Base
 {
     internal abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, IDisposable

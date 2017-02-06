@@ -16,7 +16,7 @@ namespace FormatConversionTester
             {
                 binConverter.AddNewDataItem(10, 2, 1000, "Car", 100500);
                 binConverter.SaveToFile("Car.bin");
-                converter.Convert(binConverter, "Car.xml", ConvertedFormat.XML);
+                converter.ConvertProcessor(binConverter, "Car.xml", ConvertedFormat.XML);
             }
             using (var xmlConverter = converter.CreateFormatProcessor(ConvertedFormat.XML))
             {
@@ -30,7 +30,7 @@ namespace FormatConversionTester
                 if (binConverter.ReadFromFile("BlaCar.bin"))
                 {
                     binConverter.AddNewDataItem(5, 12, 2005, "BlaBlaCar", 999);
-                    converter.Convert(binConverter, "BlaBlaCar.xml", ConvertedFormat.XML);
+                    converter.ConvertProcessor(binConverter, "BlaBlaCar.xml", ConvertedFormat.XML);
                 }
             }
         }

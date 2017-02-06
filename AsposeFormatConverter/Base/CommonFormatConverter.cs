@@ -66,7 +66,7 @@ namespace AsposeFormatConverter.Base
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        public bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat)
+        public bool ConvertProcessor(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat)
         {
             if (inputFormatProcessor == null)
             {
@@ -101,7 +101,7 @@ namespace AsposeFormatConverter.Base
                 using (var inputProcessor = CreateFormatProcessor(inputFormat))
                 {
                     result = inputProcessor.ReadFromFile(inputFilePath) 
-                        && Convert(inputProcessor, outputFilePath, outputFormat);
+                        && ConvertProcessor(inputProcessor, outputFilePath, outputFormat);
                 }
             }
             return result;
@@ -122,7 +122,7 @@ namespace AsposeFormatConverter.Base
             using (var inputFormatProcessor = CreateFormatProcessor(inputFormat))
             {
                 result = inputFormatProcessor.ReadFromFile(inputFilePath) &&
-                    Convert(inputFormatProcessor, outputFilePath, outputFormat);
+                    ConvertProcessor(inputFormatProcessor, outputFilePath, outputFormat);
             }
             return result;
         }

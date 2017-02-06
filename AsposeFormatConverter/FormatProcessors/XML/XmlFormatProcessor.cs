@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
+[assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.FormatProcessors.XML
 {
     internal sealed class XmlFormatProcessor : FormatProcessorBase

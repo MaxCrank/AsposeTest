@@ -43,7 +43,7 @@ namespace AsposeFormatConverter.Base
         /// <param name="outputFilePath"></param>
         /// <param name="outputFormat"></param>
         /// <returns>If conversion was successful</returns>
-        bool Convert(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat);
+        bool ConvertProcessor(IFormatProcessor inputFormatProcessor, string outputFilePath, ConvertedFormat outputFormat);
 
         /// <summary>
         /// Tries to get supported file format from provided file path and its' extension

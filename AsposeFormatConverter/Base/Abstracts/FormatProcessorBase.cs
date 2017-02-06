@@ -5,9 +5,11 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.Base
 {
     /// <summary>

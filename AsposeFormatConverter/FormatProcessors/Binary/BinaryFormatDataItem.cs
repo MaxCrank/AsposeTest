@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using AsposeFormatConverter.Base;
 
+[assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.FormatProcessors.Binary
 {
     internal class BinaryFormatDataItem : FormatDataItem
