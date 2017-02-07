@@ -70,10 +70,20 @@ namespace AsposeFormatConverter.Tests
             FormatProcessorBase.ClearFormatProcessorsCache();
             string filePath1 = "file1";
             string filePath2 = "file2";
+            FormatDataItem item1 = new FormatDataItem();
+            item1.SetDate("01.01.2001");
+            item1.SetBrandName("brand1");
+            item1.SetPrice(1111);
+            FormatDataItem item2 = new FormatDataItem();
+            item2.SetDate("02.02.2002");
+            item2.SetBrandName("brand2");
+            item2.SetPrice(2222);
             var converter = new CommonFormatConverter();
             Assert.IsNotNull(converter);
             using (var processor = converter.CreateFormatProcessor(inputFormat))
             {
+                processor.AddDataItem(item1);
+                processor.AddDataItem(item2);
                 Assert.IsNotNull(processor);
                 Assert.IsTrue(converter.ConvertProcessor(processor, filePath1, outputFormat));
                 processor.Dispose();
@@ -85,6 +95,61 @@ namespace AsposeFormatConverter.Tests
             Assert.DoesNotThrow(() => converter.Convert(filePath2, inputFormat, filePath1, outputFormat));
             Assert.IsTrue(File.Exists(filePath1));
             Assert.IsTrue(File.Exists(filePath2));
+            File.Delete(filePath1);
+            File.Delete(filePath2);
+        }
+
+        [TestCase(ConvertedFormat.BIN, ConvertedFormat.BIN)]
+        [TestCase(ConvertedFormat.XML, ConvertedFormat.XML)]
+        [TestCase(ConvertedFormat.BIN, ConvertedFormat.XML)]
+        [TestCase(ConvertedFormat.XML, ConvertedFormat.BIN)]
+        public void ConvertValidKnownFormatsDataTest(ConvertedFormat inputFormat, ConvertedFormat outputFormat)
+        {
+            FormatProcessorBase.ClearFormatProcessorsCache();
+            string filePath1 = "file1";
+            string filePath2 = "file2";
+            FormatDataItem item1 = new FormatDataItem();
+            item1.SetDate("01.01.2001");
+            item1.SetBrandName("brand1");
+            item1.SetPrice(1111);
+            FormatDataItem item2 = new FormatDataItem();
+            item2.SetDate("02.02.2002");
+            item2.SetBrandName("brand2");
+            item2.SetPrice(2222);
+            var converter = new CommonFormatConverter();
+            using (var processor = converter.CreateFormatProcessor(inputFormat))
+            {
+                processor.AddDataItem(item1);
+                processor.AddDataItem(item2);
+                Assert.AreEqual(processor[0].Date, item1.Date);
+                Assert.AreEqual(processor[0].Price, item1.Price);
+                Assert.AreEqual(processor[0].BrandName, item1.BrandName);
+                Assert.AreEqual(processor[1].Date, item2.Date);
+                Assert.AreEqual(processor[1].Price, item2.Price);
+                Assert.AreEqual(processor[1].BrandName, item2.BrandName);
+                converter.ConvertProcessor(processor, filePath1, outputFormat);
+            }
+            using (var processor = converter.CreateFormatProcessor(outputFormat))
+            {
+                processor.ReadFromFile(filePath1);
+                Assert.AreEqual(processor[0].Date, item1.Date);
+                Assert.AreEqual(processor[0].Price, item1.Price);
+                Assert.AreEqual(processor[0].BrandName, item1.BrandName);
+                Assert.AreEqual(processor[1].Date, item2.Date);
+                Assert.AreEqual(processor[1].Price, item2.Price);
+                Assert.AreEqual(processor[1].BrandName, item2.BrandName);
+                converter.ConvertProcessor(processor, filePath2, inputFormat);
+            }
+            using (var processor = converter.CreateFormatProcessor(inputFormat))
+            {
+                processor.ReadFromFile(filePath2);
+                Assert.AreEqual(processor[0].Date, item1.Date);
+                Assert.AreEqual(processor[0].Price, item1.Price);
+                Assert.AreEqual(processor[0].BrandName, item1.BrandName);
+                Assert.AreEqual(processor[1].Date, item2.Date);
+                Assert.AreEqual(processor[1].Price, item2.Price);
+                Assert.AreEqual(processor[1].BrandName, item2.BrandName);
+            }
             File.Delete(filePath1);
             File.Delete(filePath2);
         }
