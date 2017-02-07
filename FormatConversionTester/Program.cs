@@ -42,15 +42,13 @@ namespace FormatConversionTester
             //populate bin format processor, add new data, modify existing data, save to file  and convert
             using (var binProcessor = converter.CreateFormatProcessor(ConvertedFormat.BIN))
             {
-                if (binProcessor.ReadFromFile("BlaCar.bin"))
+                binProcessor.ReadFromFile("BlaCar.bin")
+                binProcessor.AddNewDataItem(5, 12, 2005, "BlaBlaCar", 999);
+                binProcessor[2].SetPrice(888);
+                converter.ConvertProcessor(binProcessor, "BlaBlaCar.xml", ConvertedFormat.XML);
+                foreach (var dataItem in binProcessor)
                 {
-                    binProcessor.AddNewDataItem(5, 12, 2005, "BlaBlaCar", 999);
-                    binProcessor[2].SetPrice(888);
-                    converter.ConvertProcessor(binProcessor, "BlaBlaCar.xml", ConvertedFormat.XML);
-                    foreach (var dataItem in binProcessor)
-                    {
-                        Console.WriteLine(dataItem.ToString());
-                    }
+                    Console.WriteLine(dataItem.ToString());
                 }
             }
             //validate data
