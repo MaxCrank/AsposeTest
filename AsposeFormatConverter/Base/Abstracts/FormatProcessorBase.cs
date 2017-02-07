@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -19,10 +20,10 @@ namespace AsposeFormatConverter.Base
     {
         private static readonly Regex FormatRegex = new Regex(FormatConversionSettings.FormatOnlyRegex);
 
-        protected static Dictionary<ConvertedFormat, Queue<IFormatProcessor>> FormatProcessorsCache = new Dictionary<ConvertedFormat, Queue<IFormatProcessor>>();
+        private static Dictionary<ConvertedFormat, Queue<IFormatProcessor>> FormatProcessorsCache = 
+            new Dictionary<ConvertedFormat, Queue<IFormatProcessor>>();
 
-        private ObservableCollection<IFormatDataItem> _dataCollection = new ObservableCollection<IFormatDataItem>();
-        private ReadOnlyObservableCollection<IFormatDataItem> _readonlyDataCollection;
+        private readonly ObservableCollection<IFormatDataItem> _dataCollection = new ObservableCollection<IFormatDataItem>();
 
         private List<NotifyCollectionChangedEventHandler> _collectionChangedDelegates = new List<NotifyCollectionChangedEventHandler>();
 
@@ -31,38 +32,64 @@ namespace AsposeFormatConverter.Base
         /// <remarks>
         /// Implements ReadOnlyObservableCollection anti-pattern
         /// </remarks>
-        public ReadOnlyObservableCollection<IFormatDataItem> Data => _readonlyDataCollection ??
-                                                                     (_readonlyDataCollection = new ReadOnlyObservableCollection<IFormatDataItem>(_dataCollection));
+        public IEnumerable<IFormatDataItem> Data => _dataCollection.AsEnumerable();
+
+        public int DataItemsCount => _dataCollection.Count;
 
         public abstract ConvertedFormat Format { get; }
 
         protected FormatProcessorBase()
         {
-            Debug.Assert(Format != ConvertedFormat.UNKNOWN, "Processor's format should not be unknown");
             _stringFormat = Enum.GetName(typeof(ConvertedFormat), Format).ToLowerInvariant();
         }
 
         public void AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
         {
-            Debug.Assert(eventHandler != null, "Event handler is null");
-            Debug.Assert(!_collectionChangedDelegates.Contains(eventHandler), "Event handler is already added");
+            if (eventHandler == null)
+            {
+                throw new ArgumentNullException($"Passed {GetType().Name} collection event handler is null");
+            }
+            if (_collectionChangedDelegates.Contains(eventHandler))
+            {
+                throw new InvalidOperationException($"Passed {GetType().Name} collection event handler was already added");
+            }
             _dataCollection.CollectionChanged += eventHandler;
             _collectionChangedDelegates.Add(eventHandler);
         }
 
         public void RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
         {
-            Debug.Assert(eventHandler != null, "Event handler is null");
-            Debug.Assert(_collectionChangedDelegates.Contains(eventHandler), "Event handler was not added, therefore can't be removed");
+            if (eventHandler == null)
+            {
+                throw new ArgumentNullException($"Passed {GetType().Name} collection event handler is null");
+            }
+            if (!_collectionChangedDelegates.Contains(eventHandler))
+            {
+                throw new InvalidOperationException($"Passed {GetType().Name} collection event handler was not added");
+            }
             _dataCollection.CollectionChanged -= eventHandler;
             _collectionChangedDelegates.Remove(eventHandler);
         }
 
-        public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem)
+        /// <summary>
+        /// Adds the data item. By default, item is cloned before adding to prevent entwined dependencies.
+        /// </summary>
+        /// <param name="dataItem"></param>
+        /// <param name="cloneInputDataItem">If set to true (by default), item will be cloned before adding to prevent entwined dependencies.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = true)
         {
-            Debug.Assert(dataItem != null, "Can't add null-valued data item");
-            Debug.Assert(!Data.Contains(dataItem), "Item is already in Data collection. Please, use clone option to make a copy if that was your intention.");
-            _dataCollection.Add(cloneInputDataItem ? (dataItem.Clone() as IFormatDataItem) : dataItem);
+            if (dataItem == null)
+            {
+                throw new ArgumentNullException($"{nameof(IFormatDataItem)} instance is null and can't be added");
+            }
+            if (_dataCollection.Contains(dataItem) && !cloneInputDataItem)
+            {
+                throw new InvalidOperationException($"{nameof(IFormatDataItem)} instance is already in {nameof(Data)} collection. Please, use clone option to make a copy if that was your intention.");
+            }
+            var itemToAdd = cloneInputDataItem ? (dataItem.Clone() as IFormatDataItem) : dataItem;
+            _dataCollection.Add(itemToAdd);
         }
 
 
@@ -107,12 +134,15 @@ namespace AsposeFormatConverter.Base
         }
 
         /// <summary>
-        /// Get ready-to-work processor instance of the same format
+        /// Get ready-to-work processor instance of the same format. Disposed instances are being cached.
         /// </summary>
         /// <returns>New instance if there are no free processors, otherwise reuses the one that was disposed and now is free</returns>
         public IFormatProcessor GetFormatProcessor()
         {
-            Debug.Assert(FormatProcessorsCache != null);
+            if (FormatProcessorsCache == null)
+            {
+                throw new Exception($"{nameof(FormatProcessorBase)}.{nameof(FormatProcessorsCache)} was not initialized");
+            }
             if (FormatProcessorsCache.ContainsKey(Format) && FormatProcessorsCache[Format].Count > 0)
             {
                 return FormatProcessorsCache[Format].Dequeue();
@@ -121,6 +151,11 @@ namespace AsposeFormatConverter.Base
             {
                 return Activator.CreateInstance(GetType()) as IFormatProcessor;
             }
+        }
+
+        public static void ClearFormatProcessorsCache()
+        {
+            FormatProcessorsCache.Clear();
         }
 
         /// <summary>
@@ -151,7 +186,7 @@ namespace AsposeFormatConverter.Base
             {
                 Console.WriteLine("Can't remove null-valued data item");
             }
-            else if (!Data.Contains(dataItem))
+            else if (!_dataCollection.Contains(dataItem))
             {
                 Console.WriteLine("Can't remove data item that's not in the collection");
             }
@@ -164,10 +199,10 @@ namespace AsposeFormatConverter.Base
         }
 
         /// <summary>
-        /// Sets the data.
+        /// Clear and repopulate data collection
         /// </summary>
-        /// <param name="initialData">The initial data.</param>
-        /// <param name="cloneInitialDataItems">if set to <c>true</c> [clone initial data items].</param>
+        /// <param name="initialData"></param>
+        /// <param name="cloneInitialDataItems">If set to true (by default), each item will be cloned before adding to prevent entwined dependencies.</param>
         public void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems = true)
         {
             ClearData();
@@ -197,7 +232,7 @@ namespace AsposeFormatConverter.Base
         public abstract object GetData();
 
         /// <summary>
-        /// Tries to write formatted file with complete formatted structure bytes representation at a specified path
+        /// Tries to write or replace formatted file with complete formatted structure bytes representation at a specified path
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns>If file was successfully filled with formatted data</returns>
@@ -214,9 +249,7 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfully filled with formatted data></returns>
         public bool SaveToFile(string filePath, bool replace)
         {
-            bool emptyPath = string.IsNullOrEmpty(filePath);
-            Debug.Assert(!emptyPath, "Can't save file at null or empty path");
-            if (emptyPath)
+            if (string.IsNullOrEmpty(filePath))
             {
                 throw new ArgumentException("Can't save file at null or empty path");
             }
@@ -278,7 +311,17 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public IFormatDataItem this[int index] => _readonlyDataCollection[index];
+        public IFormatDataItem this[int index] => _dataCollection[index];
+
+        public IEnumerator<IFormatDataItem> GetEnumerator()
+        {
+            return Data.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public void Dispose()
         {

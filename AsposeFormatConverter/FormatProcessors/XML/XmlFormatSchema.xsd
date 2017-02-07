@@ -19,7 +19,8 @@
             <xs:element name="BrandName" minOccurs="1" maxOccurs="1">
               <xs:simpleType>
                 <xs:restriction base="xs:string">
-                  <xs:maxLength value="65535"/>
+                  <xs:maxLength value="32767"/>
+                  <xs:minLength value="0"/>
                 </xs:restriction>
               </xs:simpleType>
             </xs:element>

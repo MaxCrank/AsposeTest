@@ -47,11 +47,9 @@ namespace AsposeFormatConverter.Base
 
         public FormatDataItem(FormatDataItem initialDataItem)
         {
-            bool initialItemIsNotNull = initialDataItem != null;
-            Debug.Assert(initialItemIsNotNull, "Initial data item for constructor is null");
-            if (!initialItemIsNotNull)
+            if (initialDataItem == null)
             {
-                throw new ArgumentException("Initial data item for constructor is null");
+                throw new ArgumentNullException("Initial data item for constructor is null");
             }
             SetDate(initialDataItem.Date);
             SetBrandName(initialDataItem.BrandName);
@@ -60,13 +58,11 @@ namespace AsposeFormatConverter.Base
 
         public void SetBrandName(string brandName)
         {
-            bool brandIsSignificant = !string.IsNullOrEmpty(brandName);
-            Debug.Assert(brandIsSignificant, "Brand name should not be empty");
-            if (!brandIsSignificant)
+            if (brandName == null)
             {
-                throw new ArgumentException("Brand name should not be empty");
+                throw new ArgumentNullException("Brand name should not be null");
             }
-            _brandName = brandName.Substring(0, Math.Min(brandName.Length, ushort.MaxValue));
+            _brandName = brandName.Substring(0, Math.Min(brandName.Length, short.MaxValue));
             OnPropertyChanged(nameof(BrandName));
         }
 
@@ -81,12 +77,9 @@ namespace AsposeFormatConverter.Base
 
         public void SetDate(string date)
         {
-            bool stringIsNullOrEmpty = string.IsNullOrEmpty(date);
-            Debug.Assert(!stringIsNullOrEmpty, "Date string is null or empty");
             DateTime parsedDate;
             bool dateWasParsed = DateTime.TryParseExact(date, FormatConversionSettings.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate)
                 || DateTime.TryParse(date, out parsedDate);
-            Debug.Assert(dateWasParsed, $"Date {date} should be in valid format with valid value");
             if (!dateWasParsed)
             {
                 throw new ArgumentException($"Date {date} should be in valid format with valid value");
@@ -100,9 +93,7 @@ namespace AsposeFormatConverter.Base
 
         public void SetDate(int day, int month, int year)
         {
-            bool dateIsValid = DateIsValid(day, month, year);
-            Debug.Assert(dateIsValid, $"Date is invalid: {day}.{month}.{year}");
-            if (!dateIsValid)
+            if (!DateIsValid(day, month, year))
             {
                 throw new ArgumentException($"Date is invalid: {day}.{month}.{year}");
             }
@@ -115,9 +106,7 @@ namespace AsposeFormatConverter.Base
 
         public void SetDay(int day)
         {
-            bool dateIsValid = DateIsValid(day, Month, Year);
-            Debug.Assert(dateIsValid, $"Date {day}.{Month}.{Year} is invalid");
-            if (!dateIsValid)
+            if (!DateIsValid(day, Month, Year))
             {
                 throw new ArgumentException($"Date {day}.{Month}.{Year} is invalid");
             }
@@ -128,9 +117,7 @@ namespace AsposeFormatConverter.Base
 
         public void SetMonth(int month)
         {
-            bool dateIsValid = DateIsValid(Day, month, Year);
-            Debug.Assert(dateIsValid, $"Date {Day}.{month}.{Year} is invalid");
-            if (!dateIsValid)
+            if (!DateIsValid(Day, month, Year))
             {
                 throw new ArgumentException($"Date {Day}.{month}.{Year} is invalid");
             }
@@ -141,9 +128,7 @@ namespace AsposeFormatConverter.Base
 
         public void SetYear(int year)
         {
-            bool dateIsValid = DateIsValid(Day, Month, year);
-            Debug.Assert(dateIsValid, $"Date {Day}.{Month}.{year} is invalid");
-            if (!dateIsValid)
+            if (!DateIsValid(Day, Month, year))
             {
                 throw new ArgumentException($"Date {Day}.{Month}.{year} is invalid");
             }
@@ -159,11 +144,9 @@ namespace AsposeFormatConverter.Base
 
         public void SetPrice(int price)
         {
-            bool priceIsPositive = price >= 0;
-            Debug.Assert(priceIsPositive, "Price should be positive");
-            if (!priceIsPositive)
+            if (price < 0)
             {
-                throw new ArgumentException("Price should be positive");
+                throw new ArgumentOutOfRangeException("Price should be positive");
             }
             _price = price;
             OnPropertyChanged(nameof(Price));

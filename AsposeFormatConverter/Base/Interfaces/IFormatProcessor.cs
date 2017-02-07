@@ -10,7 +10,7 @@ namespace AsposeFormatConverter.Base
     /// <summary>
     /// Interface for a common format processor. Used to decouple specific format handling implementations from the main library.
     /// </summary>
-    public interface IFormatProcessor : IDisposable
+    public interface IFormatProcessor : IDisposable, IEnumerable<IFormatDataItem>
     {
         /// <summary>
         /// Returns format string representation
@@ -20,7 +20,7 @@ namespace AsposeFormatConverter.Base
         /// <summary>
         /// Readonly collection of parsed data items. Modification is allowed with corresponding methods only.
         /// </summary>
-        ReadOnlyObservableCollection<IFormatDataItem> Data { get; }
+        IEnumerable<IFormatDataItem> Data { get; }
 
         void AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);
 
@@ -42,7 +42,12 @@ namespace AsposeFormatConverter.Base
 
         void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems);
 
-        void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem);
+        /// <summary>
+        /// Adds the data item. By default, item is cloned before adding to prevent entwined dependencies.
+        /// </summary>
+        /// <param name="dataItem"></param>
+        /// <param name="cloneInputDataItem">If set to true (by default), item will be cloned before adding to prevent entwined dependencies.</param>
+        void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = true);
 
         void AddNewDataItem(int day, int month, int year, string brandName, int price);
 
@@ -76,7 +81,7 @@ namespace AsposeFormatConverter.Base
         bool SaveToFile(string filePath, bool replace);
 
         /// <summary>
-        /// Get ready-to-work processor instance of the same format
+        /// Get ready-to-work processor instance of the same format. Disposed instances are being cached.
         /// </summary>
         /// <returns></returns>
         IFormatProcessor GetFormatProcessor();
@@ -87,5 +92,7 @@ namespace AsposeFormatConverter.Base
         /// <param name="index"></param>
         /// <returns></returns>
         IFormatDataItem this[int index] { get; }
+
+        int DataItemsCount { get; }
     }
 }

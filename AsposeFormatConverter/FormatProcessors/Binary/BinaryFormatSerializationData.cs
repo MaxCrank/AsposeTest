@@ -28,7 +28,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         public BinaryFormatSerializationData(IFormatProcessor formatProcessor)
         {
             Debug.Assert(formatProcessor != null, $"Can't init {nameof(BinaryFormatSerializationData)} with null");
-            RecordsCount = formatProcessor.Data.Count;
+            RecordsCount = formatProcessor.DataItemsCount;
             DataItems = new List<BinaryFormatSerializationDataItem>();
             foreach (var dataitem in formatProcessor.Data)
             {
@@ -129,7 +129,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
 
             private BinaryFormatSerializationDataItem()
             {
-
+                
             }
 
             public BinaryFormatSerializationDataItem(IFormatDataItem formatDataItem)

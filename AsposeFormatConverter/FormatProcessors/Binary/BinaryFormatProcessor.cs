@@ -19,7 +19,10 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         public override object GetData()
         {
             var binaryData = new BinaryFormatSerializationData(this);
-            Debug.Assert(binaryData != null, $"{nameof(BinaryFormatSerializationData)} generation failed");
+            if (binaryData == null)
+            {
+                throw new Exception($"{nameof(BinaryFormatSerializationData)} generation failed");
+            }
             return binaryData.GetBytes();
         }
 

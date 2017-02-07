@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using AsposeFormatConverter.Base;
 
@@ -9,7 +10,10 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
     {
         public BinaryFormatDataItem(BinaryFormatSerializationData.BinaryFormatSerializationDataItem binaryFormatSerializationDataItem)
         {
-            Debug.Assert(binaryFormatSerializationDataItem != null, $"Can't init {nameof(BinaryFormatDataItem)} ctor with null");
+            if (binaryFormatSerializationDataItem == null)
+            {
+                throw new ArgumentNullException($"Can't init {nameof(BinaryFormatDataItem)} ctor with null");
+            }
             SetDate(binaryFormatSerializationDataItem.Day, binaryFormatSerializationDataItem.Month, binaryFormatSerializationDataItem.Year);
             SetBrandName(binaryFormatSerializationDataItem.BrandName);
             SetPrice(binaryFormatSerializationDataItem.Price);

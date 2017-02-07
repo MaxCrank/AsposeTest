@@ -33,6 +33,12 @@ namespace FormatConversionTester
                     converter.ConvertProcessor(binConverter, "BlaBlaCar.xml", ConvertedFormat.XML);
                 }
             }
+            Console.ReadLine();
+            File.Delete("Car.bin");
+            File.Delete("Car.xml");
+            File.Delete("BlaCar.bin");
+            File.Delete("BlaCar.xml");
+            File.Delete("BlaBlaCar.xml");
         }
     }
 }

@@ -16,22 +16,35 @@ namespace AsposeFormatConverter.Base
 
         public void AddPropertyChangedHandler(PropertyChangedEventHandler eventHandler)
         {
-            Debug.Assert(eventHandler != null, "EventHandler is null");
-            Debug.Assert(!_propertyChangedDelegates.Contains(eventHandler), "EventHandler is already added");
+            if (eventHandler == null)
+            {
+                throw new ArgumentNullException($"{GetType().Name} event handler is null");
+            }
+            if (_propertyChangedDelegates.Contains(eventHandler))
+            {
+                throw new InvalidOperationException($"Passed {GetType().Name} event handler was already added");
+            }
             _propertyChanged += eventHandler;
             _propertyChangedDelegates.Add(eventHandler);
         }
 
         public void RemovePropertyChangedHandler(PropertyChangedEventHandler eventHandler)
         {
-            Debug.Assert(eventHandler != null, "EventHandler is null");
-            Debug.Assert(_propertyChangedDelegates.Contains(eventHandler), "EventHandler was not added, therefore can't be removed");
+            if (eventHandler == null)
+            {
+                throw new ArgumentNullException($"{GetType().Name} event handler is null");
+            }
+            if (!_propertyChangedDelegates.Contains(eventHandler))
+            {
+                throw new InvalidOperationException($"Passed {GetType().Name} event handler was not added");
+            }
             _propertyChanged -= eventHandler;
             _propertyChangedDelegates.Remove(eventHandler);
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
+
             Debug.Assert(!string.IsNullOrEmpty(propertyName), "Propery name is null or empty, can't raise an event");
             _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
