@@ -139,7 +139,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
                 Month = (short)formatDataItem.Month;
                 Year = formatDataItem.Year;
                 BrandName = formatDataItem.BrandName;
-                Price = formatDataItem.Year;
+                Price = formatDataItem.Price;
             }
 
             public byte[] GetBinaryData()
