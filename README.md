@@ -43,7 +43,7 @@ through iteration of valid formats in test cases, so adding another format proce
 ### Cons
 
 1. Each format processor implementation is in the same project as the others, including base classes and abstractions, which may 
-lead to a sort of a mess if there will be dozens of formats.
+lead to a sort of a mess if there are dozens of formats.
 
 ### Future development
 
