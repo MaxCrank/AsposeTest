@@ -20,7 +20,7 @@ namespace AsposeFormatConverter.Base
         private int _price = 0;
 
         /// <summary>
-        /// BrandName length is 2 bytes (ushort) max positive value
+        /// BrandName length is 2 bytes (short) max positive value
         /// </summary>
         public string BrandName => _brandName;
 
