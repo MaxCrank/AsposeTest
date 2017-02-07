@@ -25,7 +25,7 @@ Separate data item manipulation is provided through [IFormatDataItem](AsposeForm
 
 ### Sample code
 
-Simple usage demonstration can be found [here](FormatConversionTester/Program.cs).
+Simple usage demonstration can be found [here](FormatConversionDemo/Program.cs).
 
 ### Future development
 
