@@ -23,6 +23,10 @@ Separate data item manipulation is provided through [IFormatDataItem](AsposeForm
 
 1. Each format processor implementation is in the same project as the others, including base classes and abstractions, which may lead to a sort of a mess if there are dozens of formats.
 
+### Sample code
+
+Simple usage demonstration can be found [here](FormatConversionTester/Program.cs).
+
 ### Future development
 
 1. Separate base classes and abstractions from format processors with different projects for more convinient development process, where each format processor has it's own project.
