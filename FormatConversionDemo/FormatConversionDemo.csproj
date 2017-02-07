@@ -7,8 +7,8 @@
     <ProjectGuid>{673D268C-0C37-48ED-AA0B-33B92162533E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FormatConversionTester</RootNamespace>
-    <AssemblyName>FormatConversionTester</AssemblyName>
+    <RootNamespace>FormatConversionDemo</RootNamespace>
+    <AssemblyName>FormatConversionDemo</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
