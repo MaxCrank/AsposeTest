@@ -20,7 +20,7 @@ namespace AsposeFormatConverter.Base
     {
         private static readonly Regex FormatRegex = new Regex(FormatConversionSettings.FormatOnlyRegex);
 
-        private static Dictionary<ConvertedFormat, Queue<IFormatProcessor>> FormatProcessorsCache = 
+        private static Dictionary<ConvertedFormat, Queue<IFormatProcessor>> FormatProcessorsCache =
             new Dictionary<ConvertedFormat, Queue<IFormatProcessor>>();
 
         private readonly ObservableCollection<IFormatDataItem> _dataCollection = new ObservableCollection<IFormatDataItem>();
@@ -29,12 +29,28 @@ namespace AsposeFormatConverter.Base
 
         private readonly string _stringFormat;
 
+        public bool IsCached => FormatProcessorsCache.ContainsKey(Format) && FormatProcessorsCache[Format].Contains(this);
+
         /// <remarks>
         /// Implements ReadOnlyObservableCollection anti-pattern
         /// </remarks>
-        public IEnumerable<IFormatDataItem> Data => _dataCollection.AsEnumerable();
+        public IEnumerable<IFormatDataItem> Data
+        {
+            get
+            {
+                CheckCacheException();
+                return _dataCollection.AsEnumerable();
+            }
+        }
 
-        public int DataItemsCount => _dataCollection.Count;
+        public int DataItemsCount
+        {
+            get
+            {
+                CheckCacheException();
+                return _dataCollection.Count;
+            }
+        }   
 
         public abstract ConvertedFormat Format { get; }
 
@@ -45,6 +61,7 @@ namespace AsposeFormatConverter.Base
 
         public void AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
         {
+            CheckCacheException();
             if (eventHandler == null)
             {
                 throw new ArgumentNullException($"Passed {GetType().Name} collection event handler is null");
@@ -59,6 +76,7 @@ namespace AsposeFormatConverter.Base
 
         public void RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler)
         {
+            CheckCacheException();
             if (eventHandler == null)
             {
                 throw new ArgumentNullException($"Passed {GetType().Name} collection event handler is null");
@@ -80,6 +98,7 @@ namespace AsposeFormatConverter.Base
         /// <exception cref="System.InvalidOperationException"></exception>
         public void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = true)
         {
+            CheckCacheException();
             if (dataItem == null)
             {
                 throw new ArgumentNullException($"{nameof(IFormatDataItem)} instance is null and can't be added");
@@ -95,6 +114,7 @@ namespace AsposeFormatConverter.Base
 
         public void AddNewDataItem(int year, int month, int day, string brandName, int price)
         {
+            CheckCacheException();
             var newItem = new FormatDataItem();
             newItem.SetDate(year, month, day);
             newItem.SetBrandName(brandName);
@@ -104,6 +124,7 @@ namespace AsposeFormatConverter.Base
 
         public void AddNewDataItem(DateTime date, string brandName, int price)
         {
+            CheckCacheException();
             var newItem = new FormatDataItem();
             newItem.SetDate(date);
             newItem.SetBrandName(brandName);
@@ -113,6 +134,7 @@ namespace AsposeFormatConverter.Base
 
         public void AddNewDataItem(string date, string brandName, int price)
         {
+            CheckCacheException();
             var newItem = new FormatDataItem();
             newItem.SetDate(date);
             newItem.SetBrandName(brandName);
@@ -125,6 +147,7 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         public void ClearData()
         {
+            CheckCacheException();
             Debug.Assert(_dataCollection != null);
             foreach (var dataItem in _dataCollection)
             {
@@ -165,6 +188,7 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfuly parsed</returns>
         public bool ReadFromFile(string filePath)
         {
+            CheckCacheException();
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
                 throw new ArgumentException("Can't read from path leading to non-existing file");
@@ -181,6 +205,7 @@ namespace AsposeFormatConverter.Base
 
         public bool RemoveDataItem(IFormatDataItem dataItem)
         {
+            CheckCacheException();
             bool result = false;
             if (dataItem == null)
             {
@@ -205,11 +230,12 @@ namespace AsposeFormatConverter.Base
         /// <param name="cloneInitialDataItems">If set to true (by default), each item will be cloned before adding to prevent entwined dependencies.</param>
         public void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems = true)
         {
+            CheckCacheException();
             ClearData();
-            if (initialData != null) foreach(var dataItem in initialData)
-            {
-                AddDataItem(dataItem, cloneInitialDataItems);
-            }
+            if (initialData != null) foreach (var dataItem in initialData)
+                {
+                    AddDataItem(dataItem, cloneInitialDataItems);
+                }
         }
 
         private string PrepareFormatString(string format)
@@ -238,7 +264,8 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfully filled with formatted data</returns>
         public bool SaveToFile(string filePath, bool makeBackup = false)
         {
-             return SaveToFile(filePath, true, makeBackup);
+            CheckCacheException();
+            return SaveToFile(filePath, true, makeBackup);
         }
 
         /// <summary>
@@ -249,6 +276,7 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfully filled with formatted data></returns>
         public bool SaveToFile(string filePath, bool replace, bool makeBackup = false)
         {
+            CheckCacheException();
             if (string.IsNullOrEmpty(filePath))
             {
                 throw new ArgumentException("Can't save file at null or empty path");
@@ -303,7 +331,7 @@ namespace AsposeFormatConverter.Base
             Debug.Assert(data is IEnumerable<byte>, $"{GetType().Name} can't write null or invalid data type to stream");
             Debug.Assert(stream != null, $"{GetType().Name} can't write data to null stream");
             var binaryWriter = new BinaryWriter(stream);
-            binaryWriter.Write(((IEnumerable<byte>) data).ToArray());
+            binaryWriter.Write(((IEnumerable<byte>)data).ToArray());
             binaryWriter.Flush();
         }
 
@@ -316,6 +344,7 @@ namespace AsposeFormatConverter.Base
 
         public IEnumerator<IFormatDataItem> GetEnumerator()
         {
+            CheckCacheException();
             return Data.GetEnumerator();
         }
 
@@ -324,8 +353,12 @@ namespace AsposeFormatConverter.Base
             return GetEnumerator();
         }
 
+        /// <summary>
+        /// Clears data, removes event handlers and puts the instance back to cache for reusage.
+        /// </summary>
         public void Dispose()
         {
+            CheckCacheException();
             _collectionChangedDelegates.ForEach(d => _dataCollection.CollectionChanged -= d);
             _collectionChangedDelegates.Clear();
             ClearData();
@@ -334,6 +367,15 @@ namespace AsposeFormatConverter.Base
                 FormatProcessorsCache.Add(Format, new Queue<IFormatProcessor>());
             }
             FormatProcessorsCache[Format].Enqueue(this);
+        }
+
+        protected void CheckCacheException()
+        {
+            if (IsCached)
+            {
+                throw new InvalidOperationException("This instance is cached. After calling Dispose, you should not use it " +
+                    "further, but populate another one.");
+            }
         }
     }
 }

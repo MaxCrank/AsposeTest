@@ -12,7 +12,7 @@ using System.Collections;
 namespace AsposeFormatConverter.Tests
 {
     [TestFixture()]
-    public class FormatProcessBaseTest
+    public class FormatProcessorBaseTest
     {
         [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
         public void Create(ConvertedFormat format)
@@ -24,6 +24,50 @@ namespace AsposeFormatConverter.Tests
             Assert.IsNotNull(processor.Data);
             Assert.AreNotEqual(ConvertedFormat.UNKNOWN, processor.Format);
             Assert.DoesNotThrow(() => processor.GetFormatProcessor());
+        }
+
+        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        public void Cache(ConvertedFormat format)
+        {
+            FormatProcessorBase.ClearFormatProcessorsCache();
+            var converter = new CommonFormatConverter();
+            var processor1 = converter.CreateFormatProcessor(format) as FormatProcessorBase;
+            var handler = new NotifyCollectionChangedEventHandler((sender, args) => { });
+            var dataItem = new FormatDataItem();
+            processor1.Dispose();
+            string filePath = "file";
+            Assert.IsTrue(processor1.IsCached);
+            Assert.Throws<InvalidOperationException>(() => processor1.Dispose());
+            Assert.Throws<InvalidOperationException>(() => { var someVar = processor1.Data; });
+            Assert.Throws<InvalidOperationException>(() => { processor1.AddDataCollectionChangedHandler(handler); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.RemoveDataCollectionChangedHandler(handler); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.AddDataItem(dataItem); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.RemoveDataItem(dataItem); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.ClearData(); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.GetEnumerator(); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.ReadFromFile(filePath); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.SaveToFile(filePath); });
+            Assert.Throws<InvalidOperationException>(() => { processor1.SetData(null); });
+            Assert.DoesNotThrow(() => { processor1.SupportsFormat(format.ToString()); });
+            var processor2 = converter.CreateFormatProcessor(format);
+            Assert.AreSame(processor1, processor2);
+            Assert.False(processor1.IsCached);
+            Assert.DoesNotThrow(() => { var someVar = processor1.Data; });
+            Assert.DoesNotThrow(() => { processor1.AddDataCollectionChangedHandler(handler); });
+            Assert.DoesNotThrow(() => { processor1.RemoveDataCollectionChangedHandler(handler); });
+            Assert.DoesNotThrow(() => { processor1.AddDataItem(dataItem); });
+            Assert.DoesNotThrow(() => { processor1.RemoveDataItem(dataItem); });
+            Assert.DoesNotThrow(() => { processor1.ClearData(); });
+            Assert.DoesNotThrow(() => { processor1.GetEnumerator(); });
+            Assert.DoesNotThrow(() => { processor1.SaveToFile(filePath); });
+            Assert.DoesNotThrow(() => { processor1.ReadFromFile(filePath); });
+            Assert.DoesNotThrow(() => { processor1.SetData(new[]{ dataItem }); });
+            File.Delete(filePath);
+            processor1.Dispose();
+            Assert.IsTrue(processor1.IsCached);
+            processor2 = processor1.GetFormatProcessor();
+            Assert.AreSame(processor1, processor2);
+            Assert.False(processor1.IsCached);
         }
 
         [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
@@ -98,14 +142,6 @@ namespace AsposeFormatConverter.Tests
             FormatProcessorBase.ClearFormatProcessorsCache();
             string filePath1 = "file1";
             string filePath2 = "file2";
-            if (File.Exists(filePath1))
-            {
-                File.Delete(filePath1);
-            }
-            if (File.Exists(filePath2))
-            {
-                File.Delete(filePath2);
-            }
             var converter = new CommonFormatConverter();
             var processor = converter.CreateFormatProcessor(format) as FormatProcessorBase;
             Assert.Throws<ArgumentException>(() => processor.ReadFromFile(filePath1));
@@ -120,14 +156,8 @@ namespace AsposeFormatConverter.Tests
             Assert.IsTrue(processor.SaveToFile(filePath2));
             Assert.DoesNotThrow(() => processor.ReadFromFile(filePath2));
             Assert.IsTrue(processor.ReadFromFile(filePath2));
-            if (File.Exists(filePath1))
-            {
-                File.Delete(filePath1);
-            }
-            if (File.Exists(filePath2))
-            {
-                File.Delete(filePath2);
-            }
+            File.Delete(filePath1);
+            File.Delete(filePath2);
         }
     }
 }

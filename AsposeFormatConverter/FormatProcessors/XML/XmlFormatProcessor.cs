@@ -59,6 +59,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         /// </returns>
         public override object GetData()
         {
+            CheckCacheException();
             return new XmlFormatSerializationData(this);
         }
 

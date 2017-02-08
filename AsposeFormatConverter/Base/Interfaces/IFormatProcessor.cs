@@ -22,6 +22,12 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         IEnumerable<IFormatDataItem> Data { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is cached for reusage. If you call Dispose and try to use the instance further, 
+        /// exception will be thrown. 
+        /// </summary>
+        bool IsCached { get; }
+
         void AddDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);
 
         void RemoveDataCollectionChangedHandler(NotifyCollectionChangedEventHandler eventHandler);

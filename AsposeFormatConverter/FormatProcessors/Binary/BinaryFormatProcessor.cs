@@ -18,6 +18,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         /// <inheritdoc />
         public override object GetData()
         {
+            CheckCacheException();
             var binaryData = new BinaryFormatSerializationData(this);
             if (binaryData == null)
             {
