@@ -32,4 +32,3 @@ Simple usage demonstration can be found [here](FormatConversionDemo/Program.cs).
 1. Separate base classes and abstractions from format processors with different projects for more convinient development process, where each format processor has it's own project.
 2. Find a way to validate and parse binary files with some sort of schema (since they are widely used and heavily customized). [BeeSchema](https://github.com/Epidal/BeeSchema) has bugs right now, but is still in development process, so it may be used in the future.
 3. Implement features that will allow library to work not only with file paths, but streams etc. for reading and writing data on the user side (though, in the end, writing is already performed to a stream now).
-4. Override Equals method and == operator for data items comparison, and +/- operators for format processors to add/remove data items.
