@@ -84,7 +84,6 @@ namespace AsposeFormatConverter.Tests
                     processor.AddDataItem(item2);
                     Assert.IsNotNull(processor);
                     Assert.IsTrue(converter.ConvertProcessor(processor, filePath1, outputFormat));
-                    processor.Dispose();
                     Assert.DoesNotThrow(() => converter.ConvertProcessor(processor, filePath1, outputFormat));
                 }
                 Assert.IsTrue(converter.Convert(filePath1, outputFormat, filePath2, inputFormat));
