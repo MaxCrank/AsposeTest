@@ -70,7 +70,7 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns>If file was successfully filled with formatted data</returns>
-        bool SaveToFile(string filePath);
+        bool SaveToFile(string filePath, bool makeBackup = false);
 
         /// <summary>
         /// Tries to write formatted file with data items representation at a specified path
@@ -78,7 +78,7 @@ namespace AsposeFormatConverter.Base
         /// <param name="filePath"></param>
         /// <param name="replace">If existing file is to be replaced</param>
         /// <returns>If file was successfully filled with formatted data></returns>
-        bool SaveToFile(string filePath, bool replace);
+        bool SaveToFile(string filePath, bool replace, bool makeBackup = false);
 
         /// <summary>
         /// Get ready-to-work processor instance of the same format. Disposed instances are being cached.

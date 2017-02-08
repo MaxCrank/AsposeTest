@@ -236,9 +236,9 @@ namespace AsposeFormatConverter.Base
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns>If file was successfully filled with formatted data</returns>
-        public bool SaveToFile(string filePath)
+        public bool SaveToFile(string filePath, bool makeBackup = false)
         {
-             return SaveToFile(filePath, true);
+             return SaveToFile(filePath, true, makeBackup);
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace AsposeFormatConverter.Base
         /// <param name="filePath"></param>
         /// <param name="replace">If existing file is to be replaced</param>
         /// <returns>If file was successfully filled with formatted data></returns>
-        public bool SaveToFile(string filePath, bool replace)
+        public bool SaveToFile(string filePath, bool replace, bool makeBackup = false)
         {
             if (string.IsNullOrEmpty(filePath))
             {
@@ -272,16 +272,17 @@ namespace AsposeFormatConverter.Base
                 {
                     WriteFormattedDataToStream(GetData(), fileStream);
                     fileStream.Close();
-                    result = true;
                     if (File.Exists(filePath))
                     {
-                        File.Replace(tempFilePath, filePath, backupFilePath);
+                        File.Delete(filePath);
                     }
-                    else
+                    File.Copy(tempFilePath, filePath);
+                    if (makeBackup)
                     {
-                        File.Copy(tempFilePath, filePath);
-                        File.Delete(tempFilePath);
+                        File.Copy(tempFilePath, backupFilePath);
                     }
+                    File.Delete(tempFilePath);
+                    result = true;
                 }
                 else
                 {

@@ -161,5 +161,24 @@ namespace AsposeFormatConverter.Base
         {
             return $"Date: {Date}; BrandName: {BrandName}; Price {Price}";
         }
+
+        public static bool operator ==(FormatDataItem a, FormatDataItem b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+            {
+                return false;
+            }
+            return a.Day == b.Day && a.Month == b.Month && a.Year == b.Year &&
+                a.BrandName == b.BrandName && a.Price == b.Price;
+        }
+
+        public static bool operator !=(FormatDataItem a, FormatDataItem b)
+        {
+            return !(a == b);
+        }
     }
 }
