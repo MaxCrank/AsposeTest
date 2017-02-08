@@ -53,9 +53,10 @@ namespace AsposeFormatConverter.Base
             var processor = _formatProcessors.Find(p => p.Format == format);
             if (processor == null)
             {
-                throw new ArgumentException($"Format {format} is not supported");
+                throw new ArgumentException("Format " + format + " is not supported");
+
             }
-            return processor?.GetFormatProcessor();
+            return processor == null ? null : processor.GetFormatProcessor();
         }
 
         /// <summary>

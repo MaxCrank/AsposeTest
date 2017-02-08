@@ -14,7 +14,7 @@ namespace AsposeFormatConverter.Tests
     [TestFixture()]
     public class FormatProcessorBaseTest
     {
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void Create(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -26,7 +26,7 @@ namespace AsposeFormatConverter.Tests
             Assert.DoesNotThrow(() => processor.GetFormatProcessor());
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void Cache(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -70,7 +70,7 @@ namespace AsposeFormatConverter.Tests
             Assert.False(processor1.IsCached);
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void ManipulateCollectionHandlers(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -88,7 +88,7 @@ namespace AsposeFormatConverter.Tests
             Assert.DoesNotThrow(() => processor.RemoveDataCollectionChangedHandler(handler1));
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void AddRemoveDataItem(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -103,7 +103,7 @@ namespace AsposeFormatConverter.Tests
             Assert.IsTrue(processor.RemoveDataItem(dataItem));
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void SupportsFormat(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -123,7 +123,7 @@ namespace AsposeFormatConverter.Tests
             }
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void Dispose(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -136,7 +136,7 @@ namespace AsposeFormatConverter.Tests
             Assert.DoesNotThrow(() => processor.Dispose());
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void ReadWriteFiles(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();

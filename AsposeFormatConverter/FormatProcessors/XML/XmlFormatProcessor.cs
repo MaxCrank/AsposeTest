@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
@@ -23,7 +22,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         private readonly XmlSerializer _xmlFormatSerializer = new XmlSerializer(typeof(XmlFormatSerializationData));
         private readonly XmlDocument _xmlFormatDocLoader = new XmlDocument();
 
-        public override ConvertedFormat Format => ConvertedFormat.XML;
+        public override ConvertedFormat Format { get { return ConvertedFormat.XML; } }
 
         private static void ReadXmlSchema()
         {
@@ -37,11 +36,12 @@ namespace AsposeFormatConverter.FormatProcessors.XML
                         if (args.Severity == XmlSeverityType.Error)
                         {
                             _xmlSchema = null;
-                            throw new XmlSchemaException(args.Exception?.Message ?? $"Couldn't read {nameof(XmlFormatProcessor)} schema");
+                            string message = args.Exception != null ? args.Exception.Message : "Couldn't read XmlFormatProcessor schema";
+                            throw new XmlSchemaException(message);
                         }
                     });
                 }
-                Debug.Assert(_xmlSchema != null, $"{nameof(XmlFormatProcessor)} schema was not read");
+                Debug.Assert(_xmlSchema != null, "XmlFormatProcessor schema was not read");
             }
         }
 
@@ -66,8 +66,8 @@ namespace AsposeFormatConverter.FormatProcessors.XML
         /// <inheritdoc />
         protected override void WriteFormattedDataToStream(object data, Stream stream)
         {
-            Debug.Assert(data is XmlFormatSerializationData, $"{nameof(XmlFormatProcessor)} can't write null or invalid data type to stream");
-            Debug.Assert(stream != null, $"{nameof(XmlFormatProcessor)} can't write data to null stream");
+            Debug.Assert(data is XmlFormatSerializationData, "XmlFormatProcessor can't write null or invalid data type to stream");
+            Debug.Assert(stream != null, "XmlFormatProcessor can't write data to null stream");
             var xmlTextWriter = new XmlTextWriter(stream, _defaultEncoding);
             xmlTextWriter.Formatting = Formatting.Indented;
             _xmlFormatSerializer.Serialize(xmlTextWriter, (XmlFormatSerializationData) data, _emptyXmlNamespaces);
@@ -115,7 +115,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 
         internal sealed class SpecificStringWriter : StringWriter
         {
-            public override Encoding Encoding => _defaultEncoding;
+            public override Encoding Encoding { get { return _defaultEncoding; } }
         }
     }
 }

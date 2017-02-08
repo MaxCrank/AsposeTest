@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -12,9 +11,9 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
 {
     internal class BinaryFormatSerializationData
     {
-        public static int MinSize => sizeof(short) + sizeof(int);
+        public static int MinSize { get { return sizeof(short) + sizeof(int); } }
 
-        public static short Header => 0x2526;
+        public static short Header { get { return 0x2526; } }
 
         public int RecordsCount { get; private set; }
 
@@ -27,7 +26,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
 
         public BinaryFormatSerializationData(IFormatProcessor formatProcessor)
         {
-            Debug.Assert(formatProcessor != null, $"Can't init {nameof(BinaryFormatSerializationData)} with null");
+            Debug.Assert(formatProcessor != null, "Can't init BinaryFormatSerializationData with null");
             RecordsCount = formatProcessor.DataItemsCount;
             DataItems = new List<BinaryFormatSerializationDataItem>();
             foreach (var dataitem in formatProcessor.Data)
@@ -42,7 +41,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
             binaryData.AddRange(BitConverter.GetBytes(Header));
             binaryData.AddRange(BitConverter.GetBytes(RecordsCount));
             DataItems.ForEach(i => binaryData.AddRange(i.GetBinaryData()));
-            Debug.Assert(binaryData.Count >= MinSize, $"{nameof(BinaryFormatSerializationData)} binary size is less than minimum");
+            Debug.Assert(binaryData.Count >= MinSize, "BinaryFormatSerializationData binary size is less than minimum");
             return binaryData.ToArray();
         }
 
@@ -113,7 +112,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         {
             public const int DateSize = 8;
 
-            public static int MinSize => DateSize + sizeof(short) + sizeof(int);
+            public static int MinSize { get { return DateSize + sizeof(short) + sizeof(int); } }
 
             public short Day { get; private set; }
 
@@ -121,7 +120,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
 
             public int Year { get; private set; }
 
-            public short BrandNameLength => (short)(BrandName?.Length ?? 0);
+            public short BrandNameLength { get { return (short)(string.IsNullOrEmpty(BrandName) ? 0 : BrandName.Length); } }
 
             public string BrandName { get; private set; }
 
@@ -134,7 +133,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
 
             public BinaryFormatSerializationDataItem(IFormatDataItem formatDataItem)
             {
-                Debug.Assert(formatDataItem != null, $"Can't init binary {nameof(BinaryFormatSerializationDataItem)} constructor with null");
+                Debug.Assert(formatDataItem != null, "Can't init binary BinaryFormatSerializationDataItem constructor with null");
                 Day = (short)formatDataItem.Day;
                 Month = (short)formatDataItem.Month;
                 Year = formatDataItem.Year;
@@ -151,7 +150,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
                 binaryData.AddRange(BitConverter.GetBytes(BrandNameLength));
                 binaryData.AddRange(Encoding.Unicode.GetBytes(BrandName));
                 binaryData.AddRange(BitConverter.GetBytes(Price));
-                Debug.Assert(binaryData.Count >= MinSize, $"{nameof(BinaryFormatSerializationDataItem)} binary size is less than minimum");
+                Debug.Assert(binaryData.Count >= MinSize, "BinaryFormatSerializationDataItem binary size is less than minimum");
                 return binaryData.ToArray();
             }
 
@@ -174,7 +173,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
                         serializationDataitem.Year = BitConverter.ToInt32(allBytes, arrayPosition + sizeof(short) * 2);
                         serializationDataitem.BrandName = Encoding.Unicode.GetString(allBytes, arrayPosition + DateSize + sizeof(short), brandNameLength * 2);
                         Debug.Assert(brandNameLength == serializationDataitem.BrandNameLength,
-                            $"{nameof(BinaryFormatSerializationDataItem)} byte parser has bug related to {nameof(BrandName)} and/or {nameof(BrandNameLength)} length");
+                            "BinaryFormatSerializationDataItem byte parser has bug related to BrandName and/or BrandNameLength length");
                         serializationDataitem.Price = BitConverter.ToInt32(allBytes, arrayPosition + (MinSize - sizeof(int)) + brandNameLength * 2);
                         result = true;
                     }

@@ -25,7 +25,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 
         public XmlFormatSerializationData(IFormatProcessor formatProcessor)
         {
-            Debug.Assert(formatProcessor != null, $"Can't init {nameof(XmlFormatSerializationData)} with null");
+            Debug.Assert(formatProcessor != null, "Can't init XmlFormatSerializationData with null");
             XmlFormatSerializationDataItems = new List<XmlFormatSerializationDataItem>();
             foreach (var dataItem in formatProcessor.Data)
             {
@@ -52,7 +52,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
 
             public XmlFormatSerializationDataItem(IFormatDataItem formatDataItem)
             {
-                Debug.Assert(formatDataItem != null, $"Can't init {nameof(XmlFormatSerializationDataItem)} ctor with null");
+                Debug.Assert(formatDataItem != null, "Can't init XmlFormatSerializationDataItem ctor with null");
                 Date = formatDataItem.Date;
                 BrandName = formatDataItem.BrandName;
                 Price = formatDataItem.Price;

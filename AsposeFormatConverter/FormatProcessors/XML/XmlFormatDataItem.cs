@@ -13,7 +13,7 @@ namespace AsposeFormatConverter.FormatProcessors.XML
     {
         public XmlFormatDataItem(XmlFormatSerializationData.XmlFormatSerializationDataItem xmlSerializedDataItem)
         {
-            Debug.Assert(xmlSerializedDataItem != null, $"Can't init {nameof(XmlFormatDataItem)} ctor with null");
+            Debug.Assert(xmlSerializedDataItem != null, "Can't init XmlFormatDataItem ctor with null");
             SetDate(xmlSerializedDataItem.Date);
             SetBrandName(xmlSerializedDataItem.BrandName);
             SetPrice(xmlSerializedDataItem.Price);

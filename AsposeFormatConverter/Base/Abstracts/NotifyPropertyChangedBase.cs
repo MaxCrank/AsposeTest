@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 [assembly: InternalsVisibleTo("AsposeFormatConverter.Tests")]
 namespace AsposeFormatConverter.Base
@@ -18,11 +16,11 @@ namespace AsposeFormatConverter.Base
         {
             if (eventHandler == null)
             {
-                throw new ArgumentNullException($"{GetType().Name} event handler is null");
+                throw new ArgumentNullException("Passed event handler is null");
             }
             if (_propertyChangedDelegates.Contains(eventHandler))
             {
-                throw new InvalidOperationException($"Passed {GetType().Name} event handler was already added");
+                throw new InvalidOperationException("Passed event handler was already added");
             }
             _propertyChanged += eventHandler;
             _propertyChangedDelegates.Add(eventHandler);
@@ -32,11 +30,11 @@ namespace AsposeFormatConverter.Base
         {
             if (eventHandler == null)
             {
-                throw new ArgumentNullException($"{GetType().Name} event handler is null");
+                throw new ArgumentNullException("Passed event handler is null");
             }
             if (!_propertyChangedDelegates.Contains(eventHandler))
             {
-                throw new InvalidOperationException($"Passed {GetType().Name} event handler was not added");
+                throw new InvalidOperationException("Passed event handler was not added");
             }
             _propertyChanged -= eventHandler;
             _propertyChangedDelegates.Remove(eventHandler);
@@ -46,7 +44,7 @@ namespace AsposeFormatConverter.Base
         {
 
             Debug.Assert(!string.IsNullOrEmpty(propertyName), "Propery name is null or empty, can't raise an event");
-            _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (_propertyChanged != null) _propertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged

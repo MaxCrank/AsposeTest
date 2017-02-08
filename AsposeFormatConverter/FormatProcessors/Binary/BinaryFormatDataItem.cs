@@ -12,7 +12,7 @@ namespace AsposeFormatConverter.FormatProcessors.Binary
         {
             if (binaryFormatSerializationDataItem == null)
             {
-                throw new ArgumentNullException($"Can't init {nameof(BinaryFormatDataItem)} ctor with null");
+                throw new ArgumentNullException("Can't init BinaryFormatDataItem ctor with null");
             }
             SetDate(binaryFormatSerializationDataItem.Day, binaryFormatSerializationDataItem.Month, binaryFormatSerializationDataItem.Year);
             SetBrandName(binaryFormatSerializationDataItem.BrandName);

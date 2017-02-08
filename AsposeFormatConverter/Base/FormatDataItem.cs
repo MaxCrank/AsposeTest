@@ -22,23 +22,23 @@ namespace AsposeFormatConverter.Base
         /// <summary>
         /// BrandName length is 2 bytes (short) max positive value
         /// </summary>
-        public string BrandName => _brandName;
+        public string BrandName { get { return _brandName; } }
 
         /// <summary>
         /// Date is in dd.mm.yyyy format
         /// </summary>
-        public string Date => _date.ToString(FormatConversionSettings.DateFormat);
+        public string Date { get { return _date.ToString(FormatConversionSettings.DateFormat); } }
 
-        public int Day => _date.Day;
+        public int Day { get { return _date.Day; } }
 
-        public int Month => _date.Month;
+        public int Month { get { return _date.Month; } }
 
-        public int Year => _date.Year;
+        public int Year { get { return _date.Year; } }
 
         /// <summary>
         /// Value is always positive
         /// </summary>
-        public int Price => _price;
+        public int Price { get { return _price; } }
 
         public FormatDataItem()
         {
@@ -63,16 +63,16 @@ namespace AsposeFormatConverter.Base
                 throw new ArgumentNullException("Brand name should not be null");
             }
             _brandName = brandName.Substring(0, Math.Min(brandName.Length, short.MaxValue));
-            OnPropertyChanged(nameof(BrandName));
+            OnPropertyChanged("BrandName");
         }
 
         public void SetDate(DateTime date)
         {
             _date = date;
-            OnPropertyChanged(nameof(Date));
-            OnPropertyChanged(nameof(Year));
-            OnPropertyChanged(nameof(Month));
-            OnPropertyChanged(nameof(Day));
+            OnPropertyChanged("Date");
+            OnPropertyChanged("Year");
+            OnPropertyChanged("Month");
+            OnPropertyChanged("Day");
         }
 
         public void SetDate(string date)
@@ -82,59 +82,59 @@ namespace AsposeFormatConverter.Base
                 || DateTime.TryParse(date, out parsedDate);
             if (!dateWasParsed)
             {
-                throw new ArgumentException($"Date {date} should be in valid format with valid value");
+                throw new ArgumentException("Date " + date + " should be in valid format with valid value");
             }
             _date = parsedDate;
-            OnPropertyChanged(nameof(Date));
-            OnPropertyChanged(nameof(Year));
-            OnPropertyChanged(nameof(Month));
-            OnPropertyChanged(nameof(Day));
+            OnPropertyChanged("Date");
+            OnPropertyChanged("Year");
+            OnPropertyChanged("Month");
+            OnPropertyChanged("Day");
         }
 
         public void SetDate(int day, int month, int year)
         {
             if (!DateIsValid(day, month, year))
             {
-                throw new ArgumentException($"Date is invalid: {day}.{month}.{year}");
+                throw new ArgumentException(string.Format("Date is invalid: {0}.{1}.{2}", day, month, year));
             }
             _date = new DateTime(year, month, day);
-            OnPropertyChanged(nameof(Date));
-            OnPropertyChanged(nameof(Year));
-            OnPropertyChanged(nameof(Month));
-            OnPropertyChanged(nameof(Day));
+            OnPropertyChanged("Date");
+            OnPropertyChanged("Year");
+            OnPropertyChanged("Month");
+            OnPropertyChanged("Day");
         }
 
         public void SetDay(int day)
         {
             if (!DateIsValid(day, Month, Year))
             {
-                throw new ArgumentException($"Date {day}.{Month}.{Year} is invalid");
+                throw new ArgumentException(string.Format("Date is invalid: {0}.{1}.{2}", day, Month, Year));
             }
             _date = new DateTime(Year, Month, day);
-            OnPropertyChanged(nameof(Day));
-            OnPropertyChanged(nameof(Date));
+            OnPropertyChanged("Date");
+            OnPropertyChanged("Day");
         }
 
         public void SetMonth(int month)
         {
             if (!DateIsValid(Day, month, Year))
             {
-                throw new ArgumentException($"Date {Day}.{month}.{Year} is invalid");
+                throw new ArgumentException(string.Format("Date is invalid: {0}.{1}.{2}", Day, month, Year));
             }
             _date = new DateTime(Year, month, Day);
-            OnPropertyChanged(nameof(Month));
-            OnPropertyChanged(nameof(Date));
+            OnPropertyChanged("Date");
+            OnPropertyChanged("Month");
         }
 
         public void SetYear(int year)
         {
             if (!DateIsValid(Day, Month, year))
             {
-                throw new ArgumentException($"Date {Day}.{Month}.{year} is invalid");
+                throw new ArgumentException(string.Format("Date is invalid: {0}.{1}.{2}", Day, Month, Year));
             }
             _date = new DateTime(year, Month, Day);
-            OnPropertyChanged(nameof(Year));
-            OnPropertyChanged(nameof(Date));
+            OnPropertyChanged("Date");
+            OnPropertyChanged("Year");
         }
 
         private bool DateIsValid(int day, int month, int year)
@@ -149,7 +149,7 @@ namespace AsposeFormatConverter.Base
                 throw new ArgumentOutOfRangeException("Price should be positive");
             }
             _price = price;
-            OnPropertyChanged(nameof(Price));
+            OnPropertyChanged("Price");
         }
 
         public object Clone()
@@ -159,7 +159,7 @@ namespace AsposeFormatConverter.Base
 
         public override string ToString()
         {
-            return $"Date: {Date}; BrandName: {BrandName}; Price {Price}";
+            return "Date: " + Date +"; BrandName: " + BrandName +"; Price + " + Price;
         }
 
         public static bool operator ==(FormatDataItem a, FormatDataItem b)

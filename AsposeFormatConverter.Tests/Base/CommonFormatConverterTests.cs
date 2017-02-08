@@ -20,7 +20,7 @@ namespace AsposeFormatConverter.Tests
             Assert.IsNotNull(converter);
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void CreateKnownFormatProcessor(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -44,7 +44,7 @@ namespace AsposeFormatConverter.Tests
             Assert.Throws<ArgumentException>(() => converter.CreateFormatProcessor(format));
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void ConvertKnownFormatArgumentExceptionTest(ConvertedFormat inputFormat)
         {
             foreach (var outputFormat in SignificantFormatsTestData.TestCases)
@@ -60,7 +60,7 @@ namespace AsposeFormatConverter.Tests
             }
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void ConvertValidKnownFormatsSuccessTest(ConvertedFormat inputFormat)
         {
             foreach (var outputFormat in SignificantFormatsTestData.TestCases)
@@ -97,7 +97,7 @@ namespace AsposeFormatConverter.Tests
             }
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void ConvertValidKnownFormatsDataTest(ConvertedFormat inputFormat)
         {
             string filePath1 = "file1";
@@ -158,7 +158,7 @@ namespace AsposeFormatConverter.Tests
             }
         }
 
-        [TestCaseSource(typeof(SignificantFormatsTestData), nameof(SignificantFormatsTestData.TestCases))]
+        [TestCaseSource(typeof(SignificantFormatsTestData), "TestCases")]
         public void TryGetSupportedFormatFromPathTrue(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
@@ -167,10 +167,10 @@ namespace AsposeFormatConverter.Tests
             using (var processor = converter.CreateFormatProcessor(format))
             {
                 Assert.IsNotNull(processor);
-                Assert.IsTrue(converter.ConvertProcessor(processor, $"file.{format}", format));
+                Assert.IsTrue(converter.ConvertProcessor(processor, "file." + format.ToString(), format));
             }
             ConvertedFormat supportedFormat;
-            Assert.IsTrue(converter.TryGetSupportedFormatFromPath($"file.{format}", out supportedFormat));
+            Assert.IsTrue(converter.TryGetSupportedFormatFromPath("file." + format.ToString(), out supportedFormat));
             Assert.AreEqual(supportedFormat, format);
         }
 

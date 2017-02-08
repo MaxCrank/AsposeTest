@@ -46,14 +46,22 @@ namespace AsposeFormatConverter.Base
         /// <returns>If file was successfuly parsed</returns>
         bool ReadFromFile(string filePath);
 
+        void SetData(IEnumerable<IFormatDataItem> initialData);
+
         void SetData(IEnumerable<IFormatDataItem> initialData, bool cloneInitialDataItems);
 
         /// <summary>
         /// Adds the data item. By default, item is cloned before adding to prevent entwined dependencies.
         /// </summary>
         /// <param name="dataItem"></param>
+        void AddDataItem(IFormatDataItem dataItem);
+
+        /// <summary>
+        /// Adds the data item. By default, item is cloned before adding to prevent entwined dependencies.
+        /// </summary>
+        /// <param name="dataItem"></param>
         /// <param name="cloneInputDataItem">If set to true (by default), item will be cloned before adding to prevent entwined dependencies.</param>
-        void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem = true);
+        void AddDataItem(IFormatDataItem dataItem, bool cloneInputDataItem);
 
         void AddNewDataItem(int day, int month, int year, string brandName, int price);
 
@@ -75,16 +83,25 @@ namespace AsposeFormatConverter.Base
         /// Tries to write formatted file with data items representation at a specified path
         /// </summary>
         /// <param name="filePath"></param>
-        /// <returns>If file was successfully filled with formatted data</returns>
-        bool SaveToFile(string filePath, bool makeBackup = false);
+        /// <returns>If file was successfully filled with formatted data></returns>
+        bool SaveToFile(string filePath);
 
         /// <summary>
         /// Tries to write formatted file with data items representation at a specified path
         /// </summary>
         /// <param name="filePath"></param>
+        /// <param name="makeBackup">Specifies if backup of old file is to be made</param>
+        /// <returns>If file was successfully filled with formatted data></returns>
+        bool SaveToFile(string filePath, bool makeBackup);
+
+        /// <summary>
+        /// Tries to write formatted file with data items representation at a specified path
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="makeBackup">Specifies if backup of old file is to be made</param>
         /// <param name="replace">If existing file is to be replaced</param>
         /// <returns>If file was successfully filled with formatted data></returns>
-        bool SaveToFile(string filePath, bool replace, bool makeBackup = false);
+        bool SaveToFile(string filePath, bool makeBackup, bool replace);
 
         /// <summary>
         /// Get ready-to-work processor instance of the same format. Disposed instances are being cached.
