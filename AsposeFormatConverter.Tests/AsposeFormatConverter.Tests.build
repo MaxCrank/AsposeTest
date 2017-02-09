@@ -6,7 +6,7 @@
   <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
   <property name="debug" value="true" unless="${property::exists('debug')}" />
   <property name="binDirName" value="bin" unless="${property::exists('binDirName')}"/>
-  <property name="platform" value="Any CPU" unless="${property::exists('platform')}"/>
+  <property name="platform" value="x86" unless="${property::exists('platform')}"/>
   <property name="binName" value="AsposeFormatConverter.Tests.dll" />
   <property name="outputDir" value="${binDirName}/${platform}/${configuration}" />
   

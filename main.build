@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="AsposeFormatConversion" default="debug" basedir=".">
+<project name="AsposeFormatConversion" default="buildAll" basedir=".">
 
   <description>AsposeFormatConverter main build script for solution</description>
   
@@ -15,7 +15,6 @@
   <property name="debug" value="true" overwrite="true"/>
   <property name="MSBuildBinDir" value="Bin" overwrite="true"/>
   <property name="MSBuildPath" value="C:/Program Files (x86)/MSBuild/14.0/${MSBuildBinDir}/MSBuild.exe" overwrite="false"/>
-  <property name="outputDir" value="${binDirName}/${platform}/${configuration}" />
 
   <loadtasks assembly="${path::combine(nantBinDir, 'NAnt.Contrib.Tasks.dll')}" />  
   
@@ -53,14 +52,37 @@
   <target name="clean" failonerror="false">
     <delete>
       <fileset>
-        <include name="./*/${outputDir}/*.*" />
+        <include name="./*/${binDirName}/${platform}/${configuration}/*.*" />
       </fileset>
     </delete>
   </target>
+  
+  <target name="cleanAll" failonerror="false">
+    <delete>
+      <fileset>
+        <include name="./*/${binDirName}/debug/x64/*.*" />
+		<include name="./*/${binDirName}/release/x86/*.*" />
+		<include name="./*/${binDirName}/debug/x64/*.*" />
+		<include name="./*/${binDirName}/release/x86/*.*" />
+      </fileset>
+    </delete>
+	<delete dir="./TestResults/" />
+  </target>
+  
+  <target name="buildAll" depends="cleanAll">
+	<call target="x86" />
+	<call target="debug" />
+	<call target="build" />
+	<call target="release" />
+	<call target="build" />
+	<call target="x64" />
+	<call target="debug" />
+	<call target="build" />
+	<call target="release" />
+	<call target="build" />
+  </target>
  
   <target name="build" depends="clean">
-    <property name="debug" value="true" unless="${property::exists('debug')}"/>
-    <property name="configuration" value="debug" unless="${property::exists('configuration')}"/>
 	<!-- always builds x64 assemblies on x64 environments which cause errors, prefer not to use it in this case -->
 	<if test="${buildTool=='nant'}">
 		<nant buildfile="./AsposeFormatConverter/AsposeFormatConverter.build"/>
@@ -86,15 +108,13 @@
 	</if>
 	<call target="test" />
   </target>
-
+  
   <target name="test">
 	<!-- preferred to use since it supports new and fast 3.x versions -->
 	<if test="${testTool=='testRunner'}">
 		<delete dir="./TestResults/${platform}/${configuration}" failonerror="false" />
-		<property name="configuration" value="debug" unless="${property::exists('configuration')}" />
-		<property name="debug" value="true" unless="${property::exists('debug')}"/>
 		<exec program="./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe">
-			<arg value="./AsposeFormatConverter.Tests/${outputDir}/AsposeFormatConverter.Tests.dll" />
+			<arg value="./AsposeFormatConverter.Tests/${binDirName}/${platform}/${configuration}/AsposeFormatConverter.Tests.dll" />
       <arg value="--framework=${nant.settings.currentframework}" />
       <arg value="--work=./TestResults/${platform}/${configuration}" />
       <arg value="--output=PassedTestsOutput.xml" />
@@ -103,12 +123,9 @@
 	</if>
 	<!-- prefer not to use since it supports only old and slow 2.x versions -->
 	<if test="${testTool=='testNant'}">
-		<delete dir="./TestResults/" failonerror="false" />
-		<property name="configuration" value="debug" unless="${property::exists('configuration')}" />
-		<property name="debug" value="true" unless="${property::exists('debug')}"/>
 		<nunit2>
 			<formatter type="Xml" usefile="true" extension=".xml" outputdir="./TestResults/${platform}/${configuration}" />
-			<test assemblyname="./AsposeFormatConverter.Tests/${outputDir}/AsposeFormatConverter.Tests.dll"/>
+			<test assemblyname="./AsposeFormatConverter.Tests/${binDirName}/${platform}/${configuration}/AsposeFormatConverter.Tests.dll"/>
 		</nunit2>
 	</if>
   </target>
@@ -116,13 +133,11 @@
   <target name="debug">
     <property name="debug" value="true" />
     <property name="configuration" value="debug" />
-    <call target="build" />
   </target>
 
   <target name="release">
     <property name="debug" value="false" />
     <property name="configuration" value="release" />
-    <call target="build" />
   </target>
   
 </project>
