@@ -4,3 +4,4 @@
 /Backup/
 *.user
 /.vs
+/TestResult*.xml

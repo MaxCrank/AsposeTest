@@ -1,9 +1,6 @@
 ﻿using AsposeFormatConverter.Base;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AsposeFormatConverter.Tests
 {
@@ -18,10 +15,6 @@ namespace AsposeFormatConverter.Tests
                     if (format != ConvertedFormat.UNKNOWN)
                     {
                         yield return format;
-                    }
-                    else
-                    {
-                        continue;
                     }
                 }
             }

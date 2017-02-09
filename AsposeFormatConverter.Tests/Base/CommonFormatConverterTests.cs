@@ -1,11 +1,7 @@
 ﻿using NUnit.Framework;
 using AsposeFormatConverter.Base;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AsposeFormatConverter.Tests
 {
@@ -162,16 +158,18 @@ namespace AsposeFormatConverter.Tests
         public void TryGetSupportedFormatFromPathTrue(ConvertedFormat format)
         {
             FormatProcessorBase.ClearFormatProcessorsCache();
+            string filePath = "file." + format.ToString();
             var converter = new CommonFormatConverter();
             Assert.IsNotNull(converter);
             using (var processor = converter.CreateFormatProcessor(format))
             {
                 Assert.IsNotNull(processor);
-                Assert.IsTrue(converter.ConvertProcessor(processor, "file." + format.ToString(), format));
+                Assert.IsTrue(converter.ConvertProcessor(processor, filePath, format));
             }
             ConvertedFormat supportedFormat;
-            Assert.IsTrue(converter.TryGetSupportedFormatFromPath("file." + format.ToString(), out supportedFormat));
+            Assert.IsTrue(converter.TryGetSupportedFormatFromPath(filePath, out supportedFormat));
             Assert.AreEqual(supportedFormat, format);
+            File.Delete(filePath);
         }
 
         [TestCase(null)]

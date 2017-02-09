@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AsposeFormatConverter.Base;
 using NUnit.Framework;
-using System.Collections.Specialized;
 using System.IO;
-using System.Collections;
+using System.Collections.Specialized;
 
 namespace AsposeFormatConverter.Tests
 {

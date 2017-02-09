@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+
+<project name="AsposeFormatConversion" default="debug" basedir=".">
+
+  <description>AsposeFormatConverter main build script for solution</description>
+  
+  <property name="nant.settings.currentframework" value="net-3.5" overwrite="false"/>
+  <property name="binDirName" value="bin" overwrite="false"/>
+  <property name="platform" value="x86" overwrite="true"/>
+  <property name="buildTool" value="msBuild" overwrite="true"/>
+  <property name="testTool" value="testRunner" overwrite="true"/>
+  <property name="nantBinDir" value="C:/Program Files/NAnt/bin/" overwrite="false"/>
+  <property name="solutionFileName" value="AsposeFormatConversion.sln" overwrite="false"/>
+  <property name="configuration" value="debug" overwrite="true"/>
+  <property name="debug" value="true" overwrite="true"/>
+  <property name="MSBuildBinDir" value="Bin" overwrite="true"/>
+  <property name="MSBuildPath" value="C:/Program Files (x86)/MSBuild/14.0/${MSBuildBinDir}/MSBuild.exe" overwrite="false"/>
+  <property name="outputDir" value="${binDirName}/${platform}/${configuration}" />
+
+  <loadtasks assembly="${path::combine(nantBinDir, 'NAnt.Contrib.Tasks.dll')}" />  
+  
+  <target name="x86">
+    <property name="platform" value="x86"/>
+	  <property name="MSBuildBinDir" value="Bin"/>
+  </target>
+
+  <target name="x64">
+    <property name="platform" value="x64"/>
+	  <property name="MSBuildBinDir" value="Bin/amd64"/>
+  </target>
+  
+  <target name="AnyCPU">
+	  <property name="platform" value="x86"/>
+	  <property name="MSBuildBinDir" value="Bin"/>
+  </target>
+  
+  <target name="nant">
+    <property name="buildTool" value="nant"/>
+  </target>
+  
+  <target name="msBuild">
+    <property name="buildTool" value="msBuild"/>
+  </target>
+  
+  <target name="testNant">
+    <property name="testTool" value="testNant"/>
+  </target>
+  
+  <target name="testRunner">
+    <property name="testTool" value="testRunner"/>
+  </target>
+ 
+  <target name="build">
+    <property name="debug" value="true" unless="${property::exists('debug')}"/>
+    <property name="configuration" value="debug" unless="${property::exists('configuration')}"/>
+	<!-- always builds x64 assemblies on x64 environments which cause errors, prefer not to use it in this case -->
+	<if test="${buildTool=='nant'}">
+		<nant buildfile="./AsposeFormatConverter/AsposeFormatConverter.build"/>
+		<nant buildfile="./AsposeFormatConverter.Tests/AsposeFormatConverter.Tests.build"/>
+		<nant buildfile="./FormatConversionDemo/FormatConversionDemo.build"/>
+	</if>
+	<if test="${buildTool=='msBuild'}">
+		<exec program="${MSBuildPath}">
+              <arg value="/property:Configuration=${configuration}" />                                  
+              <arg value="/t:Rebuild" />
+			  <arg value="/p:Platform=${platform}" />
+			  <arg value="${solutionFileName}" />
+       </exec>
+		<!-- not supported since MSBuild 12 -->
+		<!--
+		<msbuild project="${solutionFile}" verbose="Detailed">
+              <arg value="/property:Configuration=${configuration}" />                                  
+              <arg value="/t:Rebuild" />
+			  <arg value="/p:Platform=${platform}" />
+			  <arg value="/p:Platform=${platform}" />
+       </msbuild>
+	   -->
+	</if>
+	<call target="test" />
+  </target>
+
+  <target name="test">
+	<!-- preferred to use since it supports new and fast 3.x versions -->
+	<if test="${testTool=='testRunner'}">
+		<delete file="./TestResult.xml" failonerror="false" />
+		<property name="configuration" value="debug" unless="${property::exists('configuration')}" />
+		<property name="debug" value="true" unless="${property::exists('debug')}"/>
+		<exec program="./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe">
+			<arg value="./AsposeFormatConverter.Tests/${outputDir}/AsposeFormatConverter.Tests.dll" />
+		</exec>
+	</if>
+	<!-- prefer not to use since it supports only old and slow 2.x version -->
+	<if test="${testTool=='testNant'}">
+		<delete dir="./TestResults/" failonerror="false" />
+		<property name="configuration" value="debug" unless="${property::exists('configuration')}" />
+		<property name="debug" value="true" unless="${property::exists('debug')}"/>
+		<nunit2>
+			<formatter type="Xml" usefile="true" extension=".xml" outputdir="./TestResults" />
+			<test assemblyname="./AsposeFormatConverter.Tests/${outputDir}/AsposeFormatConverter.Tests.dll"/>
+		</nunit2>
+	</if>
+  </target>
+  
+  <target name="debug">
+    <property name="debug" value="true" />
+    <property name="configuration" value="debug" />
+    <call target="build" />
+  </target>
+
+  <target name="release">
+    <property name="debug" value="false" />
+    <property name="configuration" value="release" />
+    <call target="build" />
+  </target>
+  
+</project>

@@ -18,17 +18,22 @@ Separate data item manipulation is provided through [IFormatDataItem](AsposeForm
 2. Abstractions are properly separated from the implementation.
 3. Encapsulation. Previous pro gives developer an abilty to give public access only to the [CommonFormatConverter](AsposeFormatConverter/Base/CommonFormatConverter.cs), leaving everything else for interfaces, which is good for class libraries.
 4. Unit testing. It covers almost 90% of code, and is already implemented to cover all basic format processor features through iteration of valid formats in test cases, so adding another format processor won't significantly decrease code coverage.
+5. NAnt build automation scripts.
 
 ### Cons
 
 1. Each format processor implementation is in the same project as the others, including base classes and abstractions, which may lead to a sort of a mess if there are dozens of formats.
+2. NAnt is not supported since 2012 and many features doesn't work with modern tools and environemnts.
 
 ### Sample code
 
 Simple usage demonstration can be found [here](FormatConversionDemo/Program.cs).
 
-### Future development
+### Future ecosystem development
 
 1. Separate base classes and abstractions from format processors with different projects for more convinient development process, where each format processor has it's own project.
 2. Find a way to validate and parse binary files with some sort of schema (since they are widely used and heavily customized). [BeeSchema](https://github.com/Epidal/BeeSchema) has bugs right now, but is still in development process, so it may be used in the future.
 3. Implement features that will allow library to work not only with file paths, but streams etc. for reading and writing data on the user side (though, in the end, writing is already performed to a stream now).
+4. Setup a build server which will run automation script(s).
+5. Replace NAnt with another tool that supports claimed features in modern environemnts out of the box and is in active development.
+6. Implement cloud service layer to use SaaS monetization model.

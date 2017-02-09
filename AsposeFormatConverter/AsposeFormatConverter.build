@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<project name="AsposeFormatConverter" default="build" basedir=".">
+
+  <description>AsposeFormatConverter main library</description>
+  
+  <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
+  <property name="debug" value="true" unless="${property::exists('debug')}"/>
+  <property name="binDirName" value="bin" unless="${property::exists('binDirName')}"/>
+  <property name="platform" value="Any CPU" unless="${property::exists('platform')}"/>
+  <property name="binName" value="AsposeFormatConverter.dll" />
+  <property name="outputDir" value="${binDirName}/${platform}/${configuration}" />
+
+  <target name="clean">
+    <delete dir="${outputDir}" failonerror="false" />
+  </target>
+
+  <target name="build" depends="clean">
+    <mkdir dir="${outputDir}" failonerror="true" />
+    <csc target="library" output="${outputDir}/${binName}" debug="${debug}" rebuild="true" platform="${platform}">
+      <sources>
+        <include name="./Properties/*.cs" />
+        <include name="./Base/*/*.cs" />
+        <include name="./Base/*.cs" />
+        <include name="./FormatProcessors/*.cs" />
+        <include name="./FormatProcessors/*/*.cs" />
+      </sources>
+      <references>
+        <include name="System.dll" />
+        <include name="System.Core.dll" />
+        <include name="System.Xml.Linq.dll" />
+        <include name="System.Data.DataSetExtensions.dll" />
+        <include name="System.Data.dll" />
+        <include name="System.Xml.dll" />
+        <include name="WindowsBase.Data.dll" />
+        <include name="WindowsBase.dll" />
+      </references>
+      <resources dynamicprefix="true" prefix="AsposeFormatConverter">
+        <include name="./*.resx" />
+      </resources>
+    </csc>
+  </target>
+</project>
