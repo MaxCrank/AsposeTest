@@ -159,7 +159,7 @@ namespace AsposeFormatConverter.Base
 
         public override string ToString()
         {
-            return "Date: " + Date +"; BrandName: " + BrandName +"; Price + " + Price;
+            return "Date: " + Date +"; BrandName: " + BrandName +"; Price: " + Price;
         }
 
         public static bool operator ==(FormatDataItem a, FormatDataItem b)
