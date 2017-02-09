@@ -49,8 +49,16 @@
   <target name="testRunner">
     <property name="testTool" value="testRunner"/>
   </target>
+  
+  <target name="clean" failonerror="false">
+    <delete>
+      <fileset>
+        <include name="./*/${outputDir}/*.*" />
+      </fileset>
+    </delete>
+  </target>
  
-  <target name="build">
+  <target name="build" depends="clean">
     <property name="debug" value="true" unless="${property::exists('debug')}"/>
     <property name="configuration" value="debug" unless="${property::exists('configuration')}"/>
 	<!-- always builds x64 assemblies on x64 environments which cause errors, prefer not to use it in this case -->
@@ -82,20 +90,24 @@
   <target name="test">
 	<!-- preferred to use since it supports new and fast 3.x versions -->
 	<if test="${testTool=='testRunner'}">
-		<delete file="./TestResult.xml" failonerror="false" />
+		<delete dir="./TestResults/${platform}/${configuration}" failonerror="false" />
 		<property name="configuration" value="debug" unless="${property::exists('configuration')}" />
 		<property name="debug" value="true" unless="${property::exists('debug')}"/>
 		<exec program="./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe">
 			<arg value="./AsposeFormatConverter.Tests/${outputDir}/AsposeFormatConverter.Tests.dll" />
+      <arg value="--framework=${nant.settings.currentframework}" />
+      <arg value="--work=./TestResults/${platform}/${configuration}" />
+      <arg value="--output=PassedTestsOutput.xml" />
+      <arg value="--err=NotPassedTestsOutput.xml" />
 		</exec>
 	</if>
-	<!-- prefer not to use since it supports only old and slow 2.x version -->
+	<!-- prefer not to use since it supports only old and slow 2.x versions -->
 	<if test="${testTool=='testNant'}">
 		<delete dir="./TestResults/" failonerror="false" />
 		<property name="configuration" value="debug" unless="${property::exists('configuration')}" />
 		<property name="debug" value="true" unless="${property::exists('debug')}"/>
 		<nunit2>
-			<formatter type="Xml" usefile="true" extension=".xml" outputdir="./TestResults" />
+			<formatter type="Xml" usefile="true" extension=".xml" outputdir="./TestResults/${platform}/${configuration}" />
 			<test assemblyname="./AsposeFormatConverter.Tests/${outputDir}/AsposeFormatConverter.Tests.dll"/>
 		</nunit2>
 	</if>
