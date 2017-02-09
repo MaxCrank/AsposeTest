@@ -23,7 +23,7 @@ Separate data item manipulation is provided through [IFormatDataItem](AsposeForm
 ### Cons
 
 1. Each format processor implementation is in the same project as the others, including base classes and abstractions, which may lead to a sort of a mess if there are dozens of formats.
-2. NAnt is not supported since 2012 and many features doesn't work with modern tools and environemnts.
+2. NAnt is not supported since 2012 and many features doesn't work with modern tools and environments.
 
 ### Sample code
 
@@ -36,5 +36,5 @@ Simple usage demonstration can be found [here](FormatConversionDemo/Program.cs).
 3. Implement features that will allow library to work not only with file paths, but streams etc. for reading and writing data on the user side (though, in the end, writing is already performed to a stream now).
 4. Improve documentation and add docs generation to the build script.
 5. Setup a build server which will run automation script(s).
-6. Replace NAnt with another tool that supports claimed features in modern environemnts out of the box and is in active development.
+6. Replace NAnt with another tool that supports claimed features in modern environments out of the box and is in active development.
 7. Implement cloud service layer to use SaaS monetization model.
