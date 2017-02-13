@@ -1,6 +1,6 @@
 # Aspose format conversion library
 
-The library is intended to process significant data items between various format layouts. Initially it's made for XML (schema is [here](AsposeFormatConverter/FormatProcessors/XML/XmlFormatSchema.xsd)) and custom binary file (see [BinaryFormatSerializationData](AsposeFormatConverter/FormatProcessors/Binary/BinaryFormatSerializationData.cs)).
+The library is intended to process significant data items between various format layouts. Initially it's made for XML (schema is [here](AsposeFormatConverter/FormatProcessors/XML/XmlFormatSchema.xsd)) and custom binary file (see [BinaryFormatSerializationData](AsposeFormatConverter/FormatProcessors/Binary/BinaryFormatSerializationData.cs)). Requirement is to use .NET Framework 3.5 for backward compatibility.
 
 ## Architecture
 
